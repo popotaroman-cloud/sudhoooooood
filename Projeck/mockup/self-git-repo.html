@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototype — Self-Service Git Repository</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --card:#161b22; --line:#30363d; --ink:#e6edf3; --muted:#8b949e;
+    --brand:#fb8c00; --brand-d:#e07b00; --green:#238636; --green-l:#2ea043; --red:#da3633; --blue:#388bfd;
+    --soft:#21262d; --radius:10px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Tahoma,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+  .app{display:grid;grid-template-columns:235px 1fr;min-height:100vh}
+  .side{background:#010409;border-right:1px solid var(--line);padding:18px 12px;position:sticky;top:0;height:100vh}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;color:#fff;padding:6px 8px 16px}
+  .logo .dot{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#fb8c00,#e07b00);display:grid;place-items:center}
+  .nav{display:flex;flex-direction:column;gap:3px}
+  .nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:14px;color:var(--muted)}
+  .nav button:hover{background:var(--soft);color:var(--ink)}
+  .nav button.active{background:var(--soft);color:#fff;font-weight:600;box-shadow:inset 3px 0 0 var(--brand)}
+  .nav .fr{margin-left:auto;font-size:10px;opacity:.55}
+  .top{display:flex;align-items:center;gap:14px;padding:14px 26px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  .top h1{font-size:17px;margin:0;flex:1}
+  .badge{font-size:11px;background:var(--soft);color:var(--brand);padding:3px 9px;border-radius:20px;font-weight:600;border:1px solid var(--line)}
+  .who{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+  .avatar{width:30px;height:30px;border-radius:50%;background:#3a2a12;color:var(--brand);display:grid;place-items:center;font-weight:700}
+  .wrap{padding:24px 26px;max-width:1080px}
+  .screen{display:none;animation:fade .25s}.screen.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+  .card h2{font-size:15px;margin:0 0 14px}
+  .row{display:flex;gap:16px;flex-wrap:wrap}.col{flex:1;min-width:240px}
+  .muted{color:var(--muted);font-size:13px}
+  .btn{all:unset;cursor:pointer;background:var(--green);color:#fff;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--green-l)}
+  .btn:hover{background:var(--green-l)}
+  .btn.o{background:var(--brand);border-color:var(--brand-d)}.btn.o:hover{background:var(--brand-d)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}.btn.ghost:hover{background:var(--soft)}
+  .btn.sm{padding:6px 11px;font-size:12px}
+  .pill{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;border:1px solid transparent}
+  .pill.g{background:#13321d;color:#3fb950;border-color:#238636}
+  .pill.b{background:#0d2847;color:#58a6ff;border-color:#1f6feb}
+  .pill.a{background:#3a2d10;color:#d29922;border-color:#9e6a03}
+  .pill.r{background:#3a1416;color:#f85149;border-color:#da3633}
+  .pill.m{background:#2d1b3d;color:#c576f6;border-color:#8957e5}
+  .repo{display:flex;gap:12px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:8px;margin-bottom:10px}
+  .repo .ic{font-size:20px}.repo .meta{flex:1}.repo .meta b{font-size:14px;color:#58a6ff}.repo .meta div{font-size:12px;color:var(--muted);margin-top:4px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:12px}
+  .field{margin-bottom:13px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+  .field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#0d1117;color:var(--ink);font-family:inherit}
+  .vis{display:flex;gap:10px;margin-top:6px}
+  .vopt{flex:1;border:1px solid var(--line);border-radius:8px;padding:12px;cursor:pointer;font-size:13px}
+  .vopt:hover{border-color:var(--brand)}.vopt.sel{border-color:var(--brand);background:#3a2a1218}
+  .vopt b{display:block;margin-bottom:3px}
+  .note{background:#0d2847;border-left:3px solid var(--blue);padding:10px 13px;border-radius:0 8px 8px 0;font-size:12px;color:#9ecbff;margin-top:10px}
+  .quota{height:8px;background:var(--soft);border-radius:5px;overflow:hidden;margin:8px 0}
+  .quota i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),#f59e0b)}
+  .file{display:flex;gap:10px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:13px}.file:hover{background:var(--soft)}
+  .file .n{flex:1}.file .c{color:var(--muted)}
+  .diff{font-family:Consolas,monospace;font-size:12px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .diff div{padding:2px 12px}.diff .add{background:#0d2818;color:#3fb950}.diff .del{background:#3a1416;color:#f85149}.diff .ctx{color:var(--muted)}
+  .check{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;margin-bottom:7px;font-size:13px}
+  .role{padding:4px 9px;border-radius:6px;font-size:12px;background:var(--soft);border:1px solid var(--line)}
+  .step{display:flex;gap:10px;align-items:center;font-size:13px;padding:7px 0}
+  .dotn{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff}
+  .done{background:var(--green)}.cur{background:var(--brand)}.todo{background:var(--soft);color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="logo"><span class="dot">🐙</span> Faculty Git</div>
+    <nav class="nav" id="nav">
+      <button data-s="repos" class="active">📚 Repositories <span class="fr">GIT-002</span></button>
+      <button data-s="create">＋ New Repo <span class="fr">GIT-001</span></button>
+      <button data-s="detail">📂 Repo · Files <span class="fr">GIT-005</span></button>
+      <button data-s="members">👥 Members <span class="fr">GIT-003</span></button>
+      <button data-s="mr">🔀 Merge Request <span class="fr">GIT-005</span></button>
+      <button data-s="settings">⚙ Settings / Audit <span class="fr">GIT-004/7/8</span></button>
+    </nav>
+  </aside>
+  <main>
+    <div class="top">
+      <h1 id="title">Repositories</h1>
+      <span class="badge" id="frbadge">FR-GIT-002</span>
+      <div class="who"><span class="avatar">AN</span> ผศ.ดร.อนันต์ · Maintainer</div>
+    </div>
+    <div class="wrap">
+
+      <!-- REPO LIST -->
+      <section class="screen show" id="repos">
+        <div class="card">
+          <h2>Repositories ในหน่วยงาน <button class="btn o sm" style="float:right" onclick="go('create')">＋ New repository</button></h2>
+          <div class="muted" style="margin-bottom:12px">Namespace: <b style="color:#58a6ff">cpe-dept</b> · group ตามภาควิชา (อ้างอิง academic_unit จาก shared-kernel)</div>
+          <div class="repo"><span class="ic">📦</span><div class="meta"><b>cpe-dept / senior-project-2569</b><div>โครงงานนักศึกษาปี 4 · TypeScript · 18 members · อัปเดต 2 ชม.ที่แล้ว</div></div><span class="pill b">internal</span></div>
+          <div class="repo"><span class="ic">🔒</span><div class="meta"><b>cpe-dept / ai-research-dataset</b><div>ข้อมูลวิจัย (sensitive) · Python · Git LFS 4.2GB</div></div><span class="pill r">private 🔒</span></div>
+          <div class="repo"><span class="ic">📦</span><div class="meta"><b>cpe-dept / 261207-data-structure</b><div>repo รายวิชา · นักศึกษา 42 คน (auto จาก EnrollmentConfirmed)</div></div><span class="pill b">internal</span></div>
+          <div class="repo"><span class="ic">🌐</span><div class="meta"><b>cpe-dept / faculty-web-template</b><div>เทมเพลตเว็บคณะ · เปิดทั้งคณะ</div></div><span class="pill g">faculty-public</span></div>
+          <div class="note">FR-GIT-008 — repo private/sensitive ถูก mask จากผลค้นหาของผู้ที่ไม่ใช่สมาชิก ผ่าน OPA <code>git.rego</code> (mask_repos)</div>
+        </div>
+      </section>
+
+      <!-- CREATE -->
+      <section class="screen" id="create">
+        <div class="card">
+          <h2>สร้าง Repository ใหม่ (self-service)</h2>
+          <div class="row">
+            <div class="field col"><label>Namespace</label><select><option>cpe-dept (ภาควิชา)</option><option>~อนันต์ (ส่วนตัว)</option><option>261207 (รายวิชา)</option></select></div>
+            <div class="field col"><label>ชื่อ repository</label><input value="thesis-tracking"></div>
+          </div>
+          <div class="field"><label>คำอธิบาย</label><input placeholder="ระบบติดตามวิทยานิพนธ์"></div>
+          <label class="muted" style="font-weight:600">Visibility</label>
+          <div class="vis">
+            <div class="vopt sel" onclick="selVis(this)"><b>🔒 Private</b><span class="muted">สมาชิกเท่านั้น</span></div>
+            <div class="vopt" onclick="selVis(this)"><b>🏛 Internal</b><span class="muted">ทุกคนในคณะที่ login</span></div>
+            <div class="vopt" onclick="selVis(this)"><b>🌐 Faculty-public</b><span class="muted">เปิดทั้งคณะ</span></div>
+          </div>
+          <div class="field" style="margin-top:13px"><label>เริ่มต้นด้วย</label>
+            <label class="muted" style="font-weight:400"><input type="checkbox" checked> README</label>
+            <label class="muted" style="font-weight:400;margin-left:14px"><input type="checkbox" checked> .gitignore (Node)</label>
+            <label class="muted" style="font-weight:400;margin-left:14px"><input type="checkbox"> License (MIT)</label>
+          </div>
+          <div class="note">FR-GIT-001 — โควตาภาควิชา 5 GB · คำขอนี้ <b>ภายในโควตา → provision อัตโนมัติ</b> (ผ่าน BPMN <code>repo-provisioning</code> + DMN <code>quota-decision</code>) · ถ้าเกินโควตาจะส่งให้ IT อนุมัติ</div>
+          <div style="margin-top:14px;text-align:right"><button class="btn o" onclick="go('detail')">สร้าง repository</button></div>
+        </div>
+      </section>
+
+      <!-- DETAIL / FILES -->
+      <section class="screen" id="detail">
+        <div class="card">
+          <h2>📂 cpe-dept / senior-project-2569 <span class="pill b" style="float:right">internal</span></h2>
+          <div style="display:flex;gap:8px;margin-bottom:12px"><span class="pill m">main 🛡</span><span class="muted" style="align-self:center">12 branches · protected: ต้อง MR + review ≥2 + CI ผ่าน</span></div>
+          <div class="file"><span>📁</span><span class="n">src</span><span class="c">เพิ่ม auth module</span><span class="c">2 ชม.</span></div>
+          <div class="file"><span>📁</span><span class="n">docs</span><span class="c">update README</span><span class="c">1 วัน</span></div>
+          <div class="file"><span>📄</span><span class="n">package.json</span><span class="c">bump deps</span><span class="c">3 วัน</span></div>
+          <div class="file"><span>📄</span><span class="n">.ci.yml</span><span class="c">add test stage</span><span class="c">3 วัน</span></div>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button class="btn ghost sm" onclick="go('mr')">🔀 New merge request</button>
+            <button class="btn ghost sm">⬇ Clone (SSH)</button>
+            <span class="muted" style="margin-left:auto;align-self:center">clone ผ่าน OPA: <code>read_repo</code> ตาม visibility</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- MEMBERS -->
+      <section class="screen" id="members">
+        <div class="card">
+          <h2>👥 สมาชิก & สิทธิ์ — senior-project-2569 <button class="btn o sm" style="float:right">＋ เพิ่มสมาชิก</button></h2>
+          <table>
+            <tr><th>ผู้ใช้</th><th>บทบาท (RBAC)</th><th>หมดอายุสิทธิ์</th><th></th></tr>
+            <tr><td>ผศ.ดร.อนันต์</td><td><span class="role">Owner</span></td><td>—</td><td></td></tr>
+            <tr><td>ดร.สุดา (TA)</td><td><span class="role">Maintainer</span></td><td>31 ต.ค. 2569</td><td><button class="btn ghost sm">แก้</button></td></tr>
+            <tr><td>นายวิชัย (นศ.)</td><td><span class="role">Developer</span></td><td>สิ้นภาคเรียน</td><td><button class="btn ghost sm">แก้</button></td></tr>
+            <tr><td>น.ส.มาลี (นศ.)</td><td><span class="role">Developer</span></td><td>สิ้นภาคเรียน</td><td><button class="btn ghost sm">แก้</button></td></tr>
+            <tr><td>กรรมการสอบ</td><td><span class="role">Reporter</span></td><td>15 พ.ย. 2569</td><td><button class="btn ghost sm">แก้</button></td></tr>
+          </table>
+          <div class="note">FR-GIT-003/006 — บทบาท Owner&gt;Maintainer&gt;Developer&gt;Reporter&gt;Guest ตัดสินที่ OPA · นักศึกษาถูกเพิ่ม/ถอนอัตโนมัติจาก <code>EnrollmentConfirmedEvent</code> ตามภาคเรียน</div>
+        </div>
+      </section>
+
+      <!-- MERGE REQUEST -->
+      <section class="screen" id="mr">
+        <div class="card">
+          <h2>🔀 MR !42 · เพิ่มระบบยืนยันตัวตน <span class="pill m" style="float:right">open</span></h2>
+          <div class="muted" style="margin-bottom:10px">นายวิชัย ต้องการ merge <code>feat/auth</code> → <code>main</code> 🛡</div>
+          <div class="diff">
+            <div class="ctx">@@ src/auth.ts @@</div>
+            <div class="add">+ export function verifyToken(t){ return jwt.verify(t, KEY) }</div>
+            <div class="add">+ app.use(authGuard)</div>
+            <div class="del">- // TODO: auth</div>
+          </div>
+          <h2 style="margin-top:16px">เงื่อนไขก่อน merge</h2>
+          <div class="check"><span class="pill g">✓</span> CI pipeline ผ่าน (test 48/48, lint ok)</div>
+          <div class="check"><span class="pill g">✓</span> review อนุมัติ 2/2 — ดร.สุดา, ผศ.อนันต์</div>
+          <div class="check"><span class="pill g">✓</span> ไม่มี merge conflict</div>
+          <div style="margin-top:14px;display:flex;align-items:center;gap:10px">
+            <button class="btn" id="mergeBtn" onclick="this.textContent='✓ Merged';this.disabled=true;document.getElementById('mrNote').style.display='block'">✔ Merge to main</button>
+            <span class="muted">เฉพาะ Maintainer ขึ้นไปเท่านั้น</span>
+          </div>
+          <div class="note" id="mrNote" style="display:none">merge สำเร็จ → publish <code>MergeRequestMergedEvent</code> → planning (นับ activity)</div>
+          <div class="note">FR-GIT-005 — OPA <code>merge_protected</code>: rank≥maintainer AND approvals≥required AND ci=passed · ขับเคลื่อนด้วย BPMN <code>merge-request-approval</code></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS / AUDIT -->
+      <section class="screen" id="settings">
+        <div class="row">
+          <div class="col card">
+            <h2>🔑 SSH Keys & Access Token <span class="badge" style="float:right">FR-GIT-004</span></h2>
+            <table>
+              <tr><th>ชื่อ</th><th>ประเภท</th><th>หมดอายุ</th><th></th></tr>
+              <tr><td>laptop-2569</td><td>SSH</td><td>—</td><td><button class="btn ghost sm">revoke</button></td></tr>
+              <tr><td>ci-token</td><td><span class="pill a">PAT · write</span></td><td>31 ธ.ค.</td><td><button class="btn ghost sm">revoke</button></td></tr>
+            </table>
+            <button class="btn ghost sm" style="margin-top:8px">＋ เพิ่ม SSH key</button>
+            <h2 style="margin-top:18px">💾 Storage Quota <span class="badge" style="float:right">FR-GIT-007</span></h2>
+            <div class="muted">4.2 GB / 5 GB (ภาควิชา) · Git LFS เปิด</div>
+            <div class="quota"><i style="width:84%"></i></div>
+            <div class="muted" style="color:#d29922">⚠ ใกล้เต็ม (84%) — repo ไม่มี activity &gt; 12 เดือน จะถูก archive อัตโนมัติ</div>
+          </div>
+          <div class="col card">
+            <h2>📜 Audit Log <span class="badge" style="float:right">FR-GIT-008 · PDPA</span></h2>
+            <table>
+              <tr><th>เวลา</th><th>ผู้ใช้</th><th>การกระทำ</th></tr>
+              <tr><td>14:02</td><td>วิชัย</td><td>push feat/auth</td></tr>
+              <tr><td>13:40</td><td>สุดา</td><td>approve MR !42</td></tr>
+              <tr><td>11:15</td><td>อนันต์</td><td>เปลี่ยนสิทธิ์ มาลี → Developer</td></tr>
+              <tr><td>09:30</td><td>system</td><td>provision repo (BPMN)</td></tr>
+            </table>
+            <div class="note">audit log เป็น immutable · repo flag "ข้อมูลส่วนบุคคล/ลับ" บังคับ private + mask ใน search (OPA)</div>
+            <h2 style="margin-top:16px">🗑 Danger Zone <span class="badge" style="float:right">FR-GIT-010</span></h2>
+            <button class="btn ghost sm">โอนเจ้าของ (transfer)</button>
+            <button class="btn ghost sm">Archive (read-only)</button>
+            <button class="btn ghost sm" style="color:#f85149;border-color:#da3633">ลบ repo</button>
+            <div class="muted" style="margin-top:8px">ลบ = soft-delete + กู้คืนได้ 30 วัน · เฉพาะ Owner (OPA <code>delete_repo</code>)</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+<script>
+  const titles={repos:["Repositories","FR-GIT-002"],create:["สร้าง Repository (self-service)","FR-GIT-001"],detail:["Repository · Files & Branches","FR-GIT-005"],members:["สมาชิก & สิทธิ์ (RBAC)","FR-GIT-003/006"],mr:["Merge Request Review","FR-GIT-005/009"],settings:["Settings · Keys · Quota · Audit","FR-GIT-004/007/008/010"]};
+  function go(s){
+    document.querySelectorAll('.screen').forEach(e=>e.classList.remove('show'));
+    document.getElementById(s).classList.add('show');
+    document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.s===s));
+    document.getElementById('title').textContent=titles[s][0];
+    document.getElementById('frbadge').textContent=titles[s][1];
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.s));
+  function selVis(el){el.parentNode.querySelectorAll('.vopt').forEach(v=>v.classList.remove('sel'));el.classList.add('sel');}
+</script>
+</body>
+</html>

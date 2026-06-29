@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototype — Meeting Scheduling</title>
+<style>
+  :root{
+    --bg:#f1f4f9; --card:#fff; --line:#e2e8f0; --ink:#1e293b; --muted:#64748b;
+    --brand:#2563eb; --brand-d:#1d4ed8; --green:#16a34a; --amber:#d97706; --red:#dc2626;
+    --soft:#eff6ff; --radius:12px; --shadow:0 1px 3px rgba(15,23,42,.08),0 1px 2px rgba(15,23,42,.04);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Tahoma,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+  .app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+  /* sidebar */
+  .side{background:#0f172a;color:#cbd5e1;padding:18px 12px;position:sticky;top:0;height:100vh}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;color:#fff;padding:6px 8px 16px}
+  .logo .dot{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:grid;place-items:center}
+  .nav{display:flex;flex-direction:column;gap:3px;margin-top:8px}
+  .nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;font-size:14px;color:#cbd5e1}
+  .nav button:hover{background:#1e293b;color:#fff}
+  .nav button.active{background:var(--brand);color:#fff;font-weight:600}
+  .nav .fr{margin-left:auto;font-size:10px;opacity:.6}
+  /* main */
+  .main{padding:0}
+  .top{display:flex;align-items:center;gap:14px;padding:14px 26px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  .top h1{font-size:17px;margin:0;flex:1}
+  .badge{font-size:11px;background:var(--soft);color:var(--brand);padding:3px 9px;border-radius:20px;font-weight:600}
+  .who{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+  .avatar{width:30px;height:30px;border-radius:50%;background:#dbeafe;color:var(--brand);display:grid;place-items:center;font-weight:700}
+  .wrap{padding:24px 26px;max-width:1080px}
+  .screen{display:none;animation:fade .25s}
+  .screen.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+  .card h2{font-size:15px;margin:0 0 14px}
+  .row{display:flex;gap:16px;flex-wrap:wrap}
+  .col{flex:1;min-width:240px}
+  .muted{color:var(--muted);font-size:13px}
+  .btn{all:unset;cursor:pointer;background:var(--brand);color:#fff;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{background:var(--brand-d)}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn.ghost:hover{background:#f8fafc}
+  .btn.sm{padding:6px 11px;font-size:12px}
+  .pill{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600}
+  .pill.g{background:#dcfce7;color:var(--green)} .pill.a{background:#fef3c7;color:var(--amber)} .pill.r{background:#fee2e2;color:var(--red)} .pill.b{background:var(--soft);color:var(--brand)}
+  .mtg{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;gap:14px;align-items:center}
+  .mtg .ic{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-size:20px;background:var(--soft)}
+  .mtg .meta{flex:1} .mtg .meta b{font-size:14px} .mtg .meta div{font-size:12px;color:var(--muted);margin-top:3px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:600;font-size:12px}
+  /* availability grid */
+  .grid{display:grid;grid-template-columns:70px repeat(5,1fr);gap:5px;font-size:12px;margin-top:8px}
+  .grid .h{font-weight:600;text-align:center;color:var(--muted);padding:4px}
+  .slot{height:34px;border-radius:6px;display:grid;place-items:center;cursor:pointer;border:2px solid transparent}
+  .s3{background:#1d4ed8;color:#fff}.s2{background:#93c5fd}.s1{background:#dbeafe}.s0{background:#f1f5f9;color:#94a3b8}
+  .slot.pick{border-color:#f59e0b;font-weight:700}
+  .agenda{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:7px}
+  .agenda .grip{color:#cbd5e1;cursor:grab} .agenda .t{flex:1;font-size:13px}
+  .vote{display:flex;gap:10px;margin:12px 0}
+  .vbtn{flex:1;text-align:center;padding:14px;border-radius:10px;border:2px solid var(--line);cursor:pointer;font-weight:600;font-size:13px}
+  .vbtn:hover{border-color:var(--brand)} .vbtn.y{color:var(--green)} .vbtn.n{color:var(--red)} .vbtn.a{color:var(--muted)}
+  .quorum{font-size:34px;font-weight:800} .att{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:13px;border-bottom:1px dashed var(--line)}
+  .chk{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:12px;color:#fff}
+  .ci{background:var(--green)} .co{background:#cbd5e1}
+  .field{margin-bottom:12px} .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+  .field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit}
+  .note{background:var(--soft);border-left:3px solid var(--brand);padding:10px 13px;border-radius:0 8px 8px 0;font-size:12px;color:#1e40af;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="logo"><span class="dot">📅</span> ระบบประชุมคณะ</div>
+    <nav class="nav" id="nav">
+      <button data-s="dash" class="active">▣ Dashboard <span class="fr">MTG-001</span></button>
+      <button data-s="create">＋ สร้างนัด + หาเวลา <span class="fr">MTG-002/3</span></button>
+      <button data-s="agenda">📋 จัดวาระ <span class="fr">MTG-004</span></button>
+      <button data-s="invite">✉ เชิญ / RSVP <span class="fr">MTG-005</span></button>
+      <button data-s="live">🔴 ประชุม / ลงมติ <span class="fr">MTG-006</span></button>
+      <button data-s="minutes">📝 รายงาน + มติ <span class="fr">MTG-007/8</span></button>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="top">
+      <h1 id="title">Dashboard — การประชุมของฉัน</h1>
+      <span class="badge" id="frbadge">FR-MTG-001</span>
+      <div class="who"><span class="avatar">สช</span> ผศ.ดร.สมชาย · เลขานุการ</div>
+    </div>
+    <div class="wrap">
+
+      <!-- DASHBOARD -->
+      <section class="screen show" id="dash">
+        <div class="row">
+          <div class="col card">
+            <h2>การประชุมที่จะถึง <button class="btn sm" style="float:right" onclick="go('create')">＋ สร้างนัดประชุม</button></h2>
+            <div class="mtg"><div class="ic">🟢</div><div class="meta"><b>กก.ประจำคณะ ครั้งที่ 7/2569</b><div>📅 3 ก.ค. 13:30 · ห้อง ENG-301 · วาระ 8 ข้อ · RSVP 12/15</div></div><span class="pill g">ครบองค์</span><button class="btn sm ghost" onclick="go('live')">เปิดดู</button></div>
+            <div class="mtg"><div class="ic">🟡</div><div class="meta"><b>กก.วิชาการ ครั้งที่ 4/2569</b><div>📊 โหวตเวลา 6/9 · ปิดรับ 30 มิ.ย.</div></div><span class="pill a">รอโหวต</span><button class="btn sm ghost" onclick="go('create')">ผลโหวต</button></div>
+            <div class="mtg"><div class="ic">⚪</div><div class="meta"><b>กก.วิจัย ครั้งที่ 5/2569</b><div>📅 10 ก.ค. 10:00 · ออนไลน์ (Zoom)</div></div><span class="pill b">ร่าง</span><button class="btn sm ghost" onclick="go('agenda')">จัดวาระ</button></div>
+          </div>
+          <div class="col card" style="max-width:340px">
+            <h2>มติที่ต้องติดตาม <span class="pill r" style="float:right">3 ค้าง</span></h2>
+            <table>
+              <tr><td>จัดทำร่างหลักสูตรปรับปรุง<div class="muted">ครบ 10 ก.ค.</div></td><td><span class="pill r">เกินกำหนด</span></td></tr>
+              <tr><td>รายงานงบประมาณ Q3<div class="muted">ครบ 15 ก.ค.</div></td><td><span class="pill a">ใกล้ครบ</span></td></tr>
+              <tr><td>สรุปผลประเมินอาจารย์<div class="muted">ครบ 20 ก.ค.</div></td><td><span class="pill b">ปกติ</span></td></tr>
+            </table>
+            <div class="note">FR-MTG-008 — action item จากมติ พร้อมแจ้งเตือนผู้รับผิดชอบ</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CREATE + AVAILABILITY -->
+      <section class="screen" id="create">
+        <div class="card">
+          <h2>สร้างนัดประชุม — กรรมการวิชาการ <span class="muted" style="float:right;font-weight:400">ขั้นตอน 2/4 · หาเวลา</span></h2>
+          <div class="row">
+            <div class="field col"><label>คณะกรรมการ</label><select><option>กรรมการวิชาการ (9 คน)</option><option>กรรมการประจำคณะ (15 คน)</option></select></div>
+            <div class="field col"><label>รูปแบบ</label><select><option>Onsite</option><option>Online</option><option>Hybrid</option></select></div>
+            <div class="field col"><label>ระยะเวลา</label><select><option>2 ชั่วโมง</option><option>1 ชั่วโมง</option></select></div>
+          </div>
+          <p class="muted">เลือกช่วงเวลาที่เสนอ — สีเข้ม = ว่างมาก · จาง = ติดประชุมอื่น (ดึงจาก HRService)</p>
+          <div class="grid">
+            <div class="h"></div><div class="h">จ 1/7</div><div class="h">อ 2/7</div><div class="h">พ 3/7</div><div class="h">พฤ 4/7</div><div class="h">ศ 5/7</div>
+            <div class="h">09:00</div><div class="slot s3" onclick="pick(this)">9/9</div><div class="slot s0">2</div><div class="slot s3" onclick="pick(this)">9/9</div><div class="slot s2" onclick="pick(this)">7</div><div class="slot s3" onclick="pick(this)">9/9</div>
+            <div class="h">10:00</div><div class="slot s2" onclick="pick(this)">7</div><div class="slot s0">2</div><div class="slot s3" onclick="pick(this)">9/9</div><div class="slot s3" onclick="pick(this)">9/9</div><div class="slot s0">3</div>
+            <div class="h">13:30</div><div class="slot s3" onclick="pick(this)">9/9</div><div class="slot s3" onclick="pick(this)">8/9</div><div class="slot s1" onclick="pick(this)">5</div><div class="slot s3 pick" onclick="pick(this)">8/9</div><div class="slot s3" onclick="pick(this)">9/9</div>
+            <div class="h">15:00</div><div class="slot s0">3</div><div class="slot s3" onclick="pick(this)">9/9</div><div class="slot s2" onclick="pick(this)">7</div><div class="slot s0">2</div><div class="slot s2" onclick="pick(this)">7</div>
+          </div>
+          <div class="note">ℹ พฤ 4/7 13:30 — ว่าง 8/9 คน (ผศ.วิไล ติดสอน) · slot ที่เลือกจะถูกส่งให้กรรมการโหวตแบบ Doodle</div>
+          <div style="margin-top:14px;display:flex;gap:10px"><span class="muted" style="align-self:center">เสนอ:</span><span class="pill b">จ 1/7 13:30</span><span class="pill b">พ 3/7 09:00</span><span class="pill b">พฤ 4/7 13:30</span><button class="btn" style="margin-left:auto" onclick="go('agenda')">ถัดไป: เลือกห้อง →</button></div>
+        </div>
+        <div class="card">
+          <h2>จองห้องอัตโนมัติ <span class="pill g" style="float:right">FacilityService (sync)</span></h2>
+          <table>
+            <tr><th>ห้อง</th><th>ความจุ</th><th>สถานะช่วงเวลานี้</th><th></th></tr>
+            <tr><td>ENG-301</td><td>40</td><td><span class="pill g">ว่าง</span></td><td><button class="btn sm">เลือก</button></td></tr>
+            <tr><td>ENG-205</td><td>20</td><td><span class="pill g">ว่าง</span></td><td><button class="btn sm ghost">เลือก</button></td></tr>
+            <tr><td>ENG-401</td><td>60</td><td><span class="pill r">ไม่ว่าง</span></td><td><button class="btn sm ghost" disabled>—</button></td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- AGENDA -->
+      <section class="screen" id="agenda">
+        <div class="card">
+          <h2>วาระการประชุม — กก.ประจำคณะ 7/2569 <button class="btn sm" style="float:right">💾 บันทึก</button></h2>
+          <div class="agenda"><span class="grip">⠿</span><span class="t"><b>1.</b> รับรองรายงานการประชุมครั้งที่ 6/2569</span><span class="pill b">ทราบ</span><span class="muted">📄1</span></div>
+          <div class="agenda"><span class="grip">⠿</span><span class="t"><b>2.1</b> ความคืบหน้าหลักสูตรปรับปรุง</span><span class="pill a">พิจารณา</span><span class="muted">📄2</span></div>
+          <div class="agenda"><span class="grip">⠿</span><span class="t"><b>3.1</b> รายงานการเงินไตรมาส 3</span><span class="pill b">ทราบ</span><span class="muted">📄1</span></div>
+          <div class="agenda" style="border-color:#fca5a5;background:#fef2f2"><span class="grip">⠿</span><span class="t"><b>4.1</b> ขออนุมัติงบจัดซื้อครุภัณฑ์ 🔒</span><span class="pill r">ลับ</span><span class="muted">📄3</span></div>
+          <div style="margin-top:12px"><button class="btn ghost sm">＋ เพิ่มวาระ</button> <button class="btn ghost sm">＋ จากที่กรรมการเสนอ (2)</button></div>
+          <div class="note">FR-MTG-004 — วาระลับ (🔒) เห็นได้เฉพาะประธาน/เลขาฯ/ผู้เสนอ บังคับด้วย OPA <code>meeting.rego</code> (mask_agenda)</div>
+          <div style="margin-top:14px;text-align:right"><button class="btn" onclick="go('invite')">เสนอประธานอนุมัติวาระ → ส่งเชิญ</button></div>
+        </div>
+      </section>
+
+      <!-- INVITE / RSVP -->
+      <section class="screen" id="invite">
+        <div class="row">
+          <div class="col card" style="max-width:420px">
+            <h2>📨 หนังสือเชิญประชุม (มุมมองกรรมการ)</h2>
+            <p style="font-size:13px;line-height:1.7">
+              <b>กก.ประจำคณะ ครั้งที่ 7/2569</b><br>
+              📅 พฤหัสบดี 3 ก.ค. 2569 · 13:30–16:00<br>
+              📍 ห้องประชุม ENG-301 (ชั้น 3)<br>
+              📎 วาระการประชุม + เอกสาร 5 ไฟล์ <a href="#">เปิดอ่าน</a>
+            </p>
+            <p class="muted" style="font-weight:600;margin-bottom:6px">ท่านจะเข้าร่วมหรือไม่?</p>
+            <div class="vote">
+              <div class="vbtn y" onclick="rsvp(this)">✔ เข้าร่วม</div>
+              <div class="vbtn n" onclick="rsvp(this)">✘ ไม่เข้า</div>
+              <div class="vbtn a" onclick="rsvp(this)">⇄ มอบผู้แทน</div>
+            </div>
+            <div class="field"><label>หมายเหตุ / ผู้แทน</label><input placeholder="ระบุชื่อผู้แทน หรือเหตุผล"></div>
+            <button class="btn ghost sm">📅 เพิ่มลงปฏิทิน (.ics)</button> <button class="btn sm">ส่งคำตอบ</button>
+          </div>
+          <div class="col card">
+            <h2>สถานะตอบรับ (RSVP) <span class="pill b" style="float:right">12 / 15</span></h2>
+            <table>
+              <tr><td>ศ.ดร.มานพ (ประธาน)</td><td><span class="pill g">เข้าร่วม</span></td></tr>
+              <tr><td>รศ.ดร.วิไล</td><td><span class="pill g">เข้าร่วม</span></td></tr>
+              <tr><td>ผศ.ดร.อนันต์</td><td><span class="pill a">มอบ ดร.สุดา</span></td></tr>
+              <tr><td>ผศ.ดร.ประเสริฐ</td><td><span class="pill r">ไม่เข้า</span></td></tr>
+              <tr><td>อ.กมล</td><td><span class="muted">ยังไม่ตอบ</span></td></tr>
+            </table>
+            <div class="note">FR-MTG-005 — แจ้งเตือน email/SMS/in-app ผ่าน message bus · reminder ก่อน 3 วัน และ 1 ชม.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIVE / VOTE -->
+      <section class="screen" id="live">
+        <div class="row">
+          <div class="col card" style="max-width:360px">
+            <h2>องค์ประชุม <span class="pill g" style="float:right">DMN: ขั้นต่ำ 9</span></h2>
+            <div style="text-align:center;margin:6px 0 12px"><span class="quorum" style="color:var(--green)">12</span><span class="muted"> / 15 · ✔ ครบองค์ประชุม</span></div>
+            <div class="att"><span class="chk ci">✓</span> ศ.ดร.มานพ (ประธาน)</div>
+            <div class="att"><span class="chk ci">✓</span> ผศ.ดร.สมชาย (เลขาฯ)</div>
+            <div class="att"><span class="chk ci">✓</span> รศ.ดร.วิไล</div>
+            <div class="att"><span class="chk co"></span> ผศ.ดร.อนันต์ <span class="muted">(มอบ ดร.สุดา ✓)</span></div>
+            <div class="att"><span class="chk co"></span> อ.กมล</div>
+            <div style="margin-top:12px"><button class="btn ghost sm">📷 QR เช็คอิน</button></div>
+          </div>
+          <div class="col card">
+            <h2>ลงมติ — วาระ 4.1 🔒</h2>
+            <p style="font-size:13px"><b>ขออนุมัติงบจัดซื้อครุภัณฑ์</b> <span class="pill r">วาระลับ</span></p>
+            <div class="vote">
+              <div class="vbtn y" onclick="castVote(this,'y')">เห็นชอบ</div>
+              <div class="vbtn n" onclick="castVote(this,'n')">ไม่เห็นชอบ</div>
+              <div class="vbtn a" onclick="castVote(this,'a')">งดออกเสียง</div>
+            </div>
+            <label style="font-size:13px;display:flex;gap:7px;align-items:center"><input type="checkbox"> ลงคะแนนลับ</label>
+            <div class="note" id="voteResult">ผลปัจจุบัน: เห็นชอบ 10 · ไม่เห็นชอบ 1 · งดออกเสียง 1</div>
+            <div style="margin-top:14px;text-align:right"><button class="btn" onclick="go('minutes')">บันทึกมติ →</button></div>
+            <div class="note">FR-MTG-006 — OPA <code>cast_vote</code>: ลงมติได้เฉพาะกรรมการ <code>is_voting</code> ที่เช็คอินแล้ว</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MINUTES -->
+      <section class="screen" id="minutes">
+        <div class="card">
+          <h2>รายงานการประชุม กก.ประจำคณะ 7/2569 <span class="pill a" style="float:right">● ร่าง</span></h2>
+          <p style="font-size:13px"><b>วาระ 4.1</b> ขออนุมัติงบจัดซื้อครุภัณฑ์</p>
+          <div class="field"><label>สรุปการอภิปราย</label><textarea rows="3">ที่ประชุมพิจารณาแล้วเห็นว่า การจัดซื้อครุภัณฑ์ดังกล่าวมีความจำเป็น ...</textarea></div>
+          <div class="row">
+            <div class="field col"><label>มติ</label><select><option>เห็นชอบ</option><option>เห็นชอบมีเงื่อนไข</option><option>ไม่เห็นชอบ</option></select></div>
+            <div class="field col"><label>ผลลงคะแนน</label><input value="เห็นชอบ 10 / ไม่เห็นชอบ 1 / งด 1" readonly></div>
+          </div>
+          <h2 style="margin-top:8px">📌 มอบหมาย (Action Item)</h2>
+          <div class="row">
+            <div class="field col"><label>ผู้รับผิดชอบ</label><select><option>งานพัสดุ</option><option>งานการเงิน</option></select></div>
+            <div class="field col"><label>กำหนดเสร็จ</label><input type="date" value="2569-07-15"></div>
+            <div class="col" style="display:flex;align-items:flex-end"><button class="btn ghost sm">＋ เพิ่ม action</button></div>
+          </div>
+          <div class="note">FR-MTG-007/008 — กด "ส่งรับรอง" จะเดิน BPMN <code>publishMinutes</code> → publish <code>MeetingMinutesPublishedEvent</code> เข้าสารบรรณ · เมื่อ approved แล้ว lock แก้ไม่ได้ (OPA)</div>
+          <div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end"><button class="btn ghost">บันทึกร่าง</button><button class="btn">ส่งให้ประธานรับรอง →</button></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+<script>
+  const titles={dash:["Dashboard — การประชุมของฉัน","FR-MTG-001"],create:["สร้างนัด + ค้นหาเวลาว่าง","FR-MTG-002/003"],agenda:["จัดวาระการประชุม","FR-MTG-004"],invite:["เชิญประชุม / RSVP","FR-MTG-005"],live:["ประชุม / ตรวจองค์ประชุม / ลงมติ","FR-MTG-006"],minutes:["รายงานการประชุม + มติ","FR-MTG-007/008"]};
+  function go(s){
+    document.querySelectorAll('.screen').forEach(e=>e.classList.remove('show'));
+    document.getElementById(s).classList.add('show');
+    document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.s===s));
+    document.getElementById('title').textContent=titles[s][0];
+    document.getElementById('frbadge').textContent=titles[s][1];
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.s));
+  function pick(el){document.querySelectorAll('.slot').forEach(s=>s.classList.remove('pick'));el.classList.add('pick');}
+  function rsvp(el){el.parentNode.querySelectorAll('.vbtn').forEach(v=>v.style.borderColor='var(--line)');el.style.borderColor='var(--brand)';}
+  let votes={y:10,n:1,a:1};
+  function castVote(el,k){el.parentNode.querySelectorAll('.vbtn').forEach(v=>v.style.borderColor='var(--line)');el.style.borderColor='var(--brand)';votes[k]++;document.getElementById('voteResult').textContent=`ผลปัจจุบัน: เห็นชอบ ${votes.y} · ไม่เห็นชอบ ${votes.n} · งดออกเสียง ${votes.a}`;}
+</script>
+</body>
+</html>
