@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototype — ระบบบริหารบุคลากร (HR)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#3056d3; --accent-dark:#1f3a9e; --accent-soft:#eaeefb;
+    --bg:#f4f6fb; --card:#ffffff; --line:#e4e8f1; --ink:#1c2434; --muted:#7b8499;
+    --ok:#1f9d63; --ok-bg:#e4f6ec; --warn:#c98a00; --warn-bg:#fdf3dd; --danger:#d24545; --danger-bg:#fbe7e7;
+    --radius:12px; --shadow:0 1px 3px rgba(20,30,60,.06),0 8px 24px rgba(20,30,60,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Sarabun','Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+  .app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+  /* Sidebar */
+  .sidebar{background:#101828;color:#cdd5e2;padding:20px 14px;display:flex;flex-direction:column;gap:4px}
+  .brand{display:flex;align-items:center;gap:10px;padding:8px 10px 18px}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#6d8bff);display:grid;place-items:center;font-weight:700;color:#fff}
+  .brand b{color:#fff;font-size:15px;display:block}
+  .brand span{font-size:11px;color:#7d879c}
+  .nav-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#5e6a82;padding:14px 12px 6px}
+  .nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;cursor:pointer;color:#aeb8c9;font-weight:500;transition:.15s}
+  .nav-item:hover{background:#1c2740;color:#fff}
+  .nav-item.active{background:var(--accent);color:#fff}
+  .nav-item .ic{width:18px;text-align:center}
+  .sidebar .foot{margin-top:auto;font-size:11px;color:#5e6a82;padding:12px}
+  /* Topbar */
+  .main{display:flex;flex-direction:column;min-width:0}
+  .topbar{background:var(--card);border-bottom:1px solid var(--line);padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:5}
+  .topbar h1{font-size:18px;font-weight:600}
+  .topbar .sub{color:var(--muted);font-size:12.5px}
+  .spacer{flex:1}
+  .role-switch{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .role-switch select{font-family:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px;color:var(--ink)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700}
+  /* Content */
+  .content{padding:26px 28px;max-width:1180px}
+  .view{display:none;animation:fade .25s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .page-head{margin-bottom:18px}
+  .page-head h2{font-size:20px;font-weight:700}
+  .page-head p{color:var(--muted);margin-top:2px}
+  /* Stat tiles */
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .tile .t-ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:18px;margin-bottom:12px}
+  .tile h3{font-size:28px;font-weight:700}
+  .tile span{color:var(--muted);font-size:12.5px}
+  .tile .delta{font-size:12px;font-weight:600;margin-top:6px}
+  /* Cards / grid */
+  .grid{display:grid;gap:16px}
+  .g-2{grid-template-columns:1.6fr 1fr}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card-h{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .card-h h4{font-size:15px;font-weight:600}
+  .card-b{padding:6px 0}
+  .card-pad{padding:18px}
+  /* Table */
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:10px 18px;border-bottom:1px solid var(--line)}
+  td{padding:12px 18px;border-bottom:1px solid #f0f2f7;font-size:13.5px}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#fafbfe}
+  .u{display:flex;align-items:center;gap:10px}
+  .u .au{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:12px}
+  .u small{color:var(--muted);display:block;font-size:11.5px}
+  /* Badge */
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+  .b-ok{background:var(--ok-bg);color:var(--ok)} .b-warn{background:var(--warn-bg);color:var(--warn)}
+  .b-danger{background:var(--danger-bg);color:var(--danger)} .b-mute{background:#eef1f6;color:var(--muted)}
+  .b-info{background:var(--accent-soft);color:var(--accent)}
+  .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+  /* Buttons */
+  .btn{font-family:inherit;border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-pri{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn-pri:hover{background:var(--accent-dark);color:#fff}
+  .btn-sm{padding:5px 11px;font-size:12px}
+  .btn-ok{color:var(--ok);border-color:#bfe6cf} .btn-ok:hover{background:var(--ok-bg)}
+  .btn-dn{color:var(--danger);border-color:#f0c4c4} .btn-dn:hover{background:var(--danger-bg)}
+  /* Leave balance bars */
+  .bal{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:18px}
+  .bal .b{border:1px solid var(--line);border-radius:10px;padding:14px}
+  .bal .b b{font-size:22px} .bal .b span{color:var(--muted);font-size:12px;display:block}
+  .meter{height:6px;background:#eef1f6;border-radius:6px;margin-top:10px;overflow:hidden}
+  .meter i{display:block;height:100%;border-radius:6px;background:var(--accent)}
+  /* Kanban */
+  .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .col{background:#f7f9fd;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:120px}
+  .col h5{font-size:12.5px;color:var(--muted);margin-bottom:10px;display:flex;justify-content:space-between}
+  .k-card{background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px;margin-bottom:9px;box-shadow:0 1px 2px rgba(20,30,60,.04)}
+  .k-card b{font-size:13px} .k-card small{color:var(--muted);display:block;margin-top:2px}
+  /* Form */
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 18px 6px}
+  .field{margin:10px 0}
+  .field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:600}
+  .field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .hint{background:var(--accent-soft);color:var(--accent-dark);padding:10px 14px;border-radius:9px;font-size:12.5px;margin:14px 18px;border:1px solid #d4ddf8}
+  .mask{letter-spacing:2px;color:var(--muted)}
+  .arch{font-size:11.5px;color:var(--muted);border-top:1px dashed var(--line);margin-top:18px;padding-top:12px}
+  @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{display:none}.tiles{grid-template-columns:1fr 1fr}.g-2{grid-template-columns:1fr}.kanban{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">HR</div>
+      <div><b>Faculty HR</b><span>ระบบบริหารบุคลากร</span></div>
+    </div>
+    <div class="nav-label">เมนูหลัก</div>
+    <div class="nav-item active" data-view="dashboard"><span class="ic">▣</span> แดชบอร์ด</div>
+    <div class="nav-item" data-view="employees"><span class="ic">☷</span> ข้อมูลบุคลากร</div>
+    <div class="nav-item" data-view="leave"><span class="ic">✈</span> ระบบลา</div>
+    <div class="nav-item" data-view="recruit"><span class="ic">⊕</span> สรรหาบุคลากร</div>
+    <div class="nav-item" data-view="evaluation"><span class="ic">★</span> ประเมินผล</div>
+    <div class="nav-item" data-view="salary"><span class="ic">฿</span> เงินเดือน</div>
+    <div class="foot">Prototype • Modular Monolith<br>schema: <code>hr</code></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <h1 id="vtitle">แดชบอร์ด</h1>
+        <div class="sub" id="vsub">ภาพรวมงานบุคคล คณะวิศวกรรมศาสตร์</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="role-switch">
+        <span>มุมมองสิทธิ์ (OPA):</span>
+        <select id="role" onchange="applyRole()">
+          <option value="admin">HR Admin</option>
+          <option value="head">หัวหน้าภาควิชา</option>
+          <option value="emp">บุคลากร (ตัวเอง)</option>
+        </select>
+      </div>
+      <div class="avatar">สม</div>
+    </header>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section class="view active" id="dashboard">
+        <div class="tiles">
+          <div class="tile"><div class="t-ic" style="background:var(--accent-soft);color:var(--accent)">☷</div><h3>248</h3><span>บุคลากรทั้งหมด</span><div class="delta" style="color:var(--ok)">▲ 6 คนปีนี้</div></div>
+          <div class="tile"><div class="t-ic" style="background:var(--warn-bg);color:var(--warn)">✈</div><h3>12</h3><span>อยู่ระหว่างลา</span><div class="delta" style="color:var(--muted)">วันนี้</div></div>
+          <div class="tile"><div class="t-ic" style="background:var(--danger-bg);color:var(--danger)">⧖</div><h3>5</h3><span>คำขอรออนุมัติ</span><div class="delta" style="color:var(--danger)">ต้องดำเนินการ</div></div>
+          <div class="tile"><div class="t-ic" style="background:var(--ok-bg);color:var(--ok)">⊕</div><h3>3</h3><span>อัตราว่างเปิดรับ</span><div class="delta" style="color:var(--muted)">18 ผู้สมัคร</div></div>
+        </div>
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><h4>คำขอลาล่าสุด</h4><div class="spacer"></div><span class="badge b-info">BPMN: leave-request</span></div>
+            <div class="card-b">
+              <table>
+                <thead><tr><th>บุคลากร</th><th>ประเภท</th><th>ช่วงวันที่</th><th>สถานะ</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="u"><div class="au">ปก</div><div>ปกรณ์ วิทยา<small>อาจารย์</small></div></div></td><td>ลาพักผ่อน</td><td>1–3 ก.ค. 69</td><td><span class="badge b-warn"><span class="dot"></span>รออนุมัติ</span></td></tr>
+                  <tr><td><div class="u"><div class="au">มน</div><div>มนัส ใจดี<small>เจ้าหน้าที่</small></div></div></td><td>ลาป่วย</td><td>28 มิ.ย. 69</td><td><span class="badge b-ok"><span class="dot"></span>อนุมัติ</span></td></tr>
+                  <tr><td><div class="u"><div class="au">วร</div><div>วราภรณ์ สุข<small>อาจารย์</small></div></div></td><td>ลากิจ</td><td>5–6 ก.ค. 69</td><td><span class="badge b-warn"><span class="dot"></span>รออนุมัติ</span></td></tr>
+                  <tr><td><div class="u"><div class="au">ธี</div><div>ธีรพงษ์ มั่นคง<small>นักวิชาการ</small></div></div></td><td>ลาพักผ่อน</td><td>10–18 ก.ค. 69</td><td><span class="badge b-info"><span class="dot"></span>ส่งคณบดี</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h4>สัดส่วนบุคลากร</h4></div>
+            <div class="card-pad">
+              <div style="display:flex;flex-direction:column;gap:13px">
+                <div><div style="display:flex;justify-content:space-between"><span>สายวิชาการ (อาจารย์)</span><b>132</b></div><div class="meter"><i style="width:53%"></i></div></div>
+                <div><div style="display:flex;justify-content:space-between"><span>สายสนับสนุน</span><b>78</b></div><div class="meter"><i style="width:31%;background:#6d8bff"></i></div></div>
+                <div><div style="display:flex;justify-content:space-between"><span>ลูกจ้างชั่วคราว</span><b>26</b></div><div class="meter"><i style="width:11%;background:var(--warn)"></i></div></div>
+                <div><div style="display:flex;justify-content:space-between"><span>อาจารย์พิเศษ</span><b>12</b></div><div class="meter"><i style="width:5%;background:var(--muted)"></i></div></div>
+              </div>
+              <div class="hint" style="margin:16px 0 0">💡 ข้อมูลอาจารย์ (132 คน) เปิดผ่าน <b>public API</b> ให้โมดูล <b>academic</b> และ <b>coop</b> เรียกใช้ — ไม่ query ข้าม schema</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- EMPLOYEES -->
+      <section class="view" id="employees">
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><h4>ทะเบียนบุคลากร</h4><div class="spacer"></div><button class="btn btn-pri btn-sm">+ เพิ่มบุคลากร</button></div>
+            <div class="card-b">
+              <table>
+                <thead><tr><th>ชื่อ–สกุล</th><th>ตำแหน่ง</th><th>ประเภท</th><th>สถานะ</th></tr></thead>
+                <tbody>
+                  <tr onclick="pickEmp(this,'ปกรณ์ วิทยา','รศ.ดร. · ภาควิชาวิศวกรรมคอมพิวเตอร์','ข้าราชการ')"><td><div class="u"><div class="au">ปก</div><div>ปกรณ์ วิทยา<small>EMP-1042</small></div></div></td><td>รองศาสตราจารย์</td><td>ข้าราชการ</td><td><span class="badge b-ok"><span class="dot"></span>ปฏิบัติงาน</span></td></tr>
+                  <tr onclick="pickEmp(this,'วราภรณ์ สุข','ผศ.ดร. · ภาควิชาวิศวกรรมไฟฟ้า','พนักงานมหาวิทยาลัย')"><td><div class="u"><div class="au">วร</div><div>วราภรณ์ สุข<small>EMP-1118</small></div></div></td><td>ผู้ช่วยศาสตราจารย์</td><td>พนักงานมหาวิทยาลัย</td><td><span class="badge b-ok"><span class="dot"></span>ปฏิบัติงาน</span></td></tr>
+                  <tr onclick="pickEmp(this,'มนัส ใจดี','เจ้าหน้าที่บริหารงานทั่วไป','พนักงานมหาวิทยาลัย')"><td><div class="u"><div class="au">มน</div><div>มนัส ใจดี<small>EMP-2050</small></div></div></td><td>นักวิชาการ</td><td>พนักงานมหาวิทยาลัย</td><td><span class="badge b-warn"><span class="dot"></span>ลาป่วย</span></td></tr>
+                  <tr onclick="pickEmp(this,'ธีรพงษ์ มั่นคง','นักวิชาการศึกษา','ลูกจ้างประจำ')"><td><div class="u"><div class="au">ธี</div><div>ธีรพงษ์ มั่นคง<small>EMP-2231</small></div></div></td><td>นักวิชาการศึกษา</td><td>ลูกจ้างประจำ</td><td><span class="badge b-ok"><span class="dot"></span>ปฏิบัติงาน</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h4>ประวัติบุคลากร</h4></div>
+            <div class="card-pad" id="empProfile">
+              <div style="text-align:center;color:var(--muted);padding:30px 0">เลือกบุคลากรจากตารางเพื่อดูประวัติ</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LEAVE -->
+      <section class="view" id="leave">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-h"><h4>วันลาคงเหลือ — ปกรณ์ วิทยา (ปีงบ 2569)</h4></div>
+          <div class="bal">
+            <div class="b"><span>ลาพักผ่อน</span><b>7 <small style="display:inline">/ 10 วัน</small></b><div class="meter"><i style="width:70%"></i></div></div>
+            <div class="b"><span>ลากิจ</span><b>4 <small style="display:inline">/ 5 วัน</small></b><div class="meter"><i style="width:80%;background:#6d8bff"></i></div></div>
+            <div class="b"><span>ลาป่วย</span><b>28 <small style="display:inline">/ 30 วัน</small></b><div class="meter"><i style="width:93%;background:var(--ok)"></i></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h4>คำขอลารออนุมัติ</h4><div class="spacer"></div><span class="badge b-info">ขั้นตอน BPMN: ผู้ขอ → หัวหน้า → คณบดี (>15 วัน)</span></div>
+          <div class="card-b">
+            <table>
+              <thead><tr><th>ผู้ขอ</th><th>ประเภท</th><th>ช่วงวันที่</th><th>จำนวน</th><th>สถานะ</th><th>การดำเนินการ</th></tr></thead>
+              <tbody>
+                <tr><td>ปกรณ์ วิทยา</td><td>ลาพักผ่อน</td><td>1–3 ก.ค. 69</td><td>3 วัน</td><td><span class="badge b-warn"><span class="dot"></span>รออนุมัติ</span></td><td><button class="btn btn-sm btn-ok" onclick="decide(this,'อนุมัติ')">อนุมัติ</button> <button class="btn btn-sm btn-dn" onclick="decide(this,'ปฏิเสธ')">ปฏิเสธ</button></td></tr>
+                <tr><td>วราภรณ์ สุข</td><td>ลากิจ</td><td>5–6 ก.ค. 69</td><td>2 วัน</td><td><span class="badge b-warn"><span class="dot"></span>รออนุมัติ</span></td><td><button class="btn btn-sm btn-ok" onclick="decide(this,'อนุมัติ')">อนุมัติ</button> <button class="btn btn-sm btn-dn" onclick="decide(this,'ปฏิเสธ')">ปฏิเสธ</button></td></tr>
+                <tr><td>ธีรพงษ์ มั่นคง</td><td>ลาพักผ่อน</td><td>10–18 ก.ค. 69</td><td>9 วัน</td><td><span class="badge b-info"><span class="dot"></span>ส่งคณบดี</span></td><td><span style="color:var(--muted);font-size:12px">รอคณบดี</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- RECRUIT -->
+      <section class="view" id="recruit">
+        <div class="page-head"><h2>กระบวนการสรรหา</h2><p>อัตราว่าง: อาจารย์ประจำภาควิชาวิศวกรรมคอมพิวเตอร์ (2 อัตรา)</p></div>
+        <div class="kanban">
+          <div class="col"><h5>สมัคร <span>8</span></h5>
+            <div class="k-card"><b>ศิริพร ทองคำ</b><small>ป.เอก วิศวกรรมซอฟต์แวร์</small></div>
+            <div class="k-card"><b>กิตติ ชาญชัย</b><small>ป.เอก AI</small></div>
+            <div class="k-card"><b>+ อีก 6 คน</b></div>
+          </div>
+          <div class="col"><h5>คัดกรอง <span>4</span></h5>
+            <div class="k-card"><b>ณัฐวุฒิ เรืองศรี</b><small>ผ่านคุณสมบัติ</small></div>
+            <div class="k-card"><b>พิมพ์ชนก ดี</b><small>ผ่านคุณสมบัติ</small></div>
+          </div>
+          <div class="col"><h5>สัมภาษณ์ <span>2</span></h5>
+            <div class="k-card"><b>ณัฐวุฒิ เรืองศรี</b><small>นัด 2 ก.ค. 09:00</small></div>
+          </div>
+          <div class="col"><h5>คัดเลือก <span>1</span></h5>
+            <div class="k-card"><b>พิมพ์ชนก ดี</b><small>เสนอบรรจุ → onboarding</small></div>
+          </div>
+        </div>
+        <div class="hint">เมื่อกด “บรรจุ” ระบบจะเริ่ม BPMN <code>staff-onboarding.bpmn</code> → HR สร้าง record → IT provision account → Finance ตั้ง payroll</div>
+      </section>
+
+      <!-- EVALUATION -->
+      <section class="view" id="evaluation">
+        <div class="page-head"><h2>ประเมินผลการปฏิบัติงาน</h2><p>รอบประเมิน 2/2569 · ข้อมูลคะแนนเป็น sensitive (OPA masking)</p></div>
+        <div class="card">
+          <div class="card-b">
+            <table>
+              <thead><tr><th>บุคลากร</th><th>Self-assessment</th><th>หัวหน้าประเมิน</th><th>คะแนนรวม</th><th>สถานะ</th></tr></thead>
+              <tbody>
+                <tr><td>ปกรณ์ วิทยา</td><td>89</td><td>91</td><td class="sens"><b>90.0</b></td><td><span class="badge b-ok">เสร็จสิ้น</span></td></tr>
+                <tr><td>วราภรณ์ สุข</td><td>85</td><td>—</td><td class="sens"><span class="mask">••••</span></td><td><span class="badge b-warn">รอหัวหน้า</span></td></tr>
+                <tr><td>มนัส ใจดี</td><td>—</td><td>—</td><td class="sens"><span class="mask">••••</span></td><td><span class="badge b-mute">ยังไม่เริ่ม</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="hint" id="evalNote">มุมมองปัจจุบัน: <b>HR Admin</b> — เห็นคะแนนทั้งหมด</div>
+      </section>
+
+      <!-- SALARY -->
+      <section class="view" id="salary">
+        <div class="page-head"><h2>ข้อมูลเงินเดือน</h2><p>เงินเดือนเป็น sensitive data — masking ใน OPA เห็นเฉพาะ HR Admin / Finance / ตัวเอง</p></div>
+        <div class="card">
+          <div class="card-b">
+            <table>
+              <thead><tr><th>บุคลากร</th><th>ตำแหน่ง</th><th>เงินเดือนพื้นฐาน</th><th>เงินประจำตำแหน่ง</th><th>มีผล</th></tr></thead>
+              <tbody>
+                <tr><td>ปกรณ์ วิทยา</td><td>รศ.ดร.</td><td class="sens">58,200</td><td class="sens">9,900</td><td>1 ต.ค. 68</td></tr>
+                <tr><td>วราภรณ์ สุข</td><td>ผศ.ดร.</td><td class="sens">46,500</td><td class="sens">5,600</td><td>1 ต.ค. 68</td></tr>
+                <tr><td>มนัส ใจดี</td><td>นักวิชาการ</td><td class="sens">28,750</td><td class="sens">—</td><td>1 ต.ค. 68</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="hint" id="salNote">มุมมองปัจจุบัน: <b>HR Admin</b> — เห็นตัวเลขจริง · เปลี่ยนเป็น “หัวหน้าภาควิชา” ที่มุมขวาบนเพื่อดู masking</div>
+        <div class="hint" style="background:#eef9f0;color:#176b3d;border-color:#bfe6cf">🔗 เมื่อแก้ไขเงินเดือน → Publish <code>SalaryUpdatedEvent</code> → Finance อัปเดต payroll (async event, ไม่เรียกตรง)</div>
+      </section>
+
+      <p class="arch">สถาปัตยกรรม: Modular Monolith · โมดูล <b>hr</b> (schema <code>hr</code>) · public API ให้ finance/academic/coop · domain event ผ่าน Message Bus · สิทธิ์/มาส์กผ่าน OPA — อ้างอิง <b>architecture.md</b></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const titles={dashboard:['แดชบอร์ด','ภาพรวมงานบุคคล คณะวิศวกรรมศาสตร์'],employees:['ข้อมูลบุคลากร','ทะเบียนและประวัติบุคลากร'],leave:['ระบบลา','ยื่นและอนุมัติคำขอลา'],recruit:['สรรหาบุคลากร','กระบวนการรับสมัครและบรรจุ'],evaluation:['ประเมินผล','รอบประเมินประจำปี'],salary:['เงินเดือน','ข้อมูลค่าตอบแทน (sensitive)']};
+  document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>{
+    document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+    n.classList.add('active');
+    const v=n.dataset.view;
+    document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+    document.getElementById(v).classList.add('active');
+    document.getElementById('vtitle').textContent=titles[v][0];
+    document.getElementById('vsub').textContent=titles[v][1];
+  });
+  function pickEmp(row,name,pos,type){
+    document.getElementById('empProfile').innerHTML=`
+      <div class="u" style="gap:14px;margin-bottom:14px"><div class="au" style="width:48px;height:48px;font-size:16px">${name.substr(0,2)}</div><div><b style="font-size:16px">${name}</b><small>${pos}</small></div></div>
+      <div class="field"><label>ประเภทบุคลากร</label><input value="${type}" readonly></div>
+      <div class="field"><label>หน่วยงาน (shared.academic_units)</label><input value="คณะวิศวกรรมศาสตร์" readonly></div>
+      <div class="field"><label>อีเมล</label><input value="${name.split(' ')[0].toLowerCase()}@eng.ac.th" readonly></div>
+      <div style="display:flex;gap:10px;margin-top:6px"><span class="badge b-ok"><span class="dot"></span>ปฏิบัติงาน</span><span class="badge b-info">เป็นอาจารย์นิเทศสหกิจ 3 คน</span></div>
+      <div class="hint" style="margin:14px 0 0">ข้อมูลนี้ถูกเรียกโดยโมดูล <b>coop</b> ผ่าน <code>HRService.getFacultyById()</code></div>`;
+  }
+  function decide(btn,act){
+    const td=btn.closest('td');const cls=act==='อนุมัติ'?'b-ok':'b-danger';
+    td.previousElementSibling.innerHTML=`<span class="badge ${cls}"><span class="dot"></span>${act}แล้ว</span>`;
+    td.innerHTML=`<span style="color:var(--muted);font-size:12px">${act==='อนุมัติ'?'→ publish LeaveApprovedEvent':'ปิดคำขอ'}</span>`;
+  }
+  function applyRole(){
+    const r=document.getElementById('role').value;
+    const map={admin:'HR Admin',head:'หัวหน้าภาควิชา',emp:'บุคลากร (ตัวเอง)'};
+    document.querySelector('.avatar').textContent={admin:'HR',head:'หน',emp:'ฉัน'}[r];
+    // salary + eval masking
+    const maskSalary = (r==='head'); // หัวหน้าเห็นแต่ไม่เห็นเงินเดือน
+    document.querySelectorAll('#salary .sens').forEach(td=>{
+      if(!td.dataset.real)td.dataset.real=td.textContent;
+      td.innerHTML=maskSalary?'<span class="mask">•••••</span>':td.dataset.real;
+    });
+    document.getElementById('salNote').innerHTML='มุมมองปัจจุบัน: <b>'+map[r]+'</b> — '+(maskSalary?'เงินเดือนถูก <b>mask</b> โดย OPA (ไม่มีสิทธิ์เห็น)':'เห็นตัวเลขจริง');
+    const evalMaskAll = (r==='emp');
+    document.querySelectorAll('#evaluation .sens').forEach((td,i)=>{
+      if(!td.dataset.real)td.dataset.real=td.innerHTML;
+      td.innerHTML=(evalMaskAll&&i>0)?'<span class="mask">••••</span>':td.dataset.real;
+    });
+    document.getElementById('evalNote').innerHTML='มุมมองปัจจุบัน: <b>'+map[r]+'</b> — '+(r==='emp'?'เห็นเฉพาะคะแนนของตนเอง (OPA row-level filter)':'เห็นคะแนนทั้งหมด');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototype — ระบบสหกิจศึกษา & บริหารบุคลากร</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Sarabun','Segoe UI',Tahoma,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px}
+  .wrap{max-width:880px;width:100%}
+  .head{text-align:center;margin-bottom:36px}
+  .head .tag{display:inline-block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#64748b;border:1px solid #334155;padding:5px 14px;border-radius:20px;margin-bottom:16px}
+  .head h1{font-size:30px;font-weight:700;margin-bottom:8px}
+  .head p{color:#94a3b8;font-size:15px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:26px;text-decoration:none;color:inherit;transition:.18s;display:block}
+  .card:hover{transform:translateY(-4px);border-color:var(--c)}
+  .card .ic{width:54px;height:54px;border-radius:13px;display:grid;place-items:center;font-weight:700;font-size:17px;color:#fff;margin-bottom:16px}
+  .card h2{font-size:19px;margin-bottom:6px}
+  .card p{color:#94a3b8;font-size:13.5px;line-height:1.55;margin-bottom:14px}
+  .card .go{font-size:13px;font-weight:600;color:var(--c)}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .tags span{font-size:11px;background:#0f172a;border:1px solid #334155;color:#94a3b8;padding:3px 9px;border-radius:6px}
+  .docs{margin-top:24px;background:#1e293b;border:1px solid #334155;border-radius:16px;padding:22px}
+  .docs h3{font-size:14px;margin-bottom:14px;color:#cbd5e1}
+  .docs a{display:flex;align-items:center;gap:10px;color:#cbd5e1;text-decoration:none;padding:9px 0;border-bottom:1px solid #2a3a52;font-size:13.5px}
+  .docs a:last-child{border:none}.docs a:hover{color:#fff}
+  .docs .d{font-size:11px;color:#64748b;margin-left:auto}
+  .foot{text-align:center;color:#64748b;font-size:12px;margin-top:24px}
+  @media(max-width:680px){.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div class="tag">Modular Monolith · Faculty Platform</div>
+    <h1>Prototype — สหกิจศึกษา &amp; บริหารบุคลากร</h1>
+    <p>คลิกเปิด prototype แต่ละระบบ · สถาปัตยกรรมอ้างอิงจาก architecture.md</p>
+  </div>
+
+  <div class="cards">
+    <a class="card" href="prototype-coop.html" style="--c:#0d9488">
+      <div class="ic" style="background:linear-gradient(135deg,#0d9488,#4dd0c4)">CO·OP</div>
+      <div class="tags"><span>schema: coop</span><span>Phase 3</span><span>BPMN</span></div>
+      <h2>ระบบสหกิจศึกษา</h2>
+      <p>ลงทะเบียน/ตรวจคุณสมบัติ · สถานประกอบการ &amp; MOU · จับคู่งาน · นิเทศงาน · ประเมินผล &amp; ตัดเกรด → ส่งกลับ academic</p>
+      <span class="go">เปิด prototype →</span>
+    </a>
+    <a class="card" href="prototype-hr.html" style="--c:#3056d3">
+      <div class="ic" style="background:linear-gradient(135deg,#3056d3,#6d8bff)">HR</div>
+      <div class="tags"><span>schema: hr</span><span>Phase 1</span><span>OPA masking</span></div>
+      <h2>ระบบบริหารบุคลากร</h2>
+      <p>ข้อมูลบุคลากร · ระบบลา (BPMN) · สรรหา · ประเมินผล · เงินเดือน (sensitive/masking) · เปิด API ให้ coop เรียกอาจารย์นิเทศ</p>
+      <span class="go">เปิด prototype →</span>
+    </a>
+  </div>
+
+  <div class="docs">
+    <h3>📄 เอกสารประกอบ (Functional Requirements)</h3>
+    <a href="fr-coop.md">fr-coop.md <span class="d">FR ระบบสหกิจศึกษา · 10 FRs</span></a>
+    <a href="fr-hr.md">fr-hr.md <span class="d">FR ระบบบริหารบุคลากร · 9 FRs</span></a>
+    <a href="architecture.md">architecture.md <span class="d">สถาปัตยกรรมระบบ (ฐานอ้างอิง)</span></a>
+  </div>
+
+  <div class="foot">coop เป็น consumer ของ academic + hr · สื่อสารผ่าน public API (sync) และ domain event (async) ตามกฎใน architecture.md</div>
+</div>
+</body>
+</html>

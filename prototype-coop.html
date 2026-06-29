@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototype — ระบบสหกิจศึกษา (Co-op)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#0d9488; --accent-dark:#0a6f66; --accent-soft:#d9f2ef;
+    --bg:#f3f8f7; --card:#ffffff; --line:#e2ebe9; --ink:#172b29; --muted:#6f817e;
+    --ok:#1f9d63; --ok-bg:#e4f6ec; --warn:#c98a00; --warn-bg:#fdf3dd; --danger:#d24545; --danger-bg:#fbe7e7;
+    --radius:12px; --shadow:0 1px 3px rgba(15,40,38,.06),0 8px 24px rgba(15,40,38,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Sarabun','Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5}
+  .app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+  .sidebar{background:#0c1f1d;color:#bcd0cd;padding:20px 14px;display:flex;flex-direction:column;gap:4px}
+  .brand{display:flex;align-items:center;gap:10px;padding:8px 10px 18px}
+  .brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#4dd0c4);display:grid;place-items:center;font-weight:700;color:#fff;font-size:13px}
+  .brand b{color:#fff;font-size:15px;display:block}
+  .brand span{font-size:11px;color:#73867f}
+  .nav-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#577069;padding:14px 12px 6px}
+  .nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;cursor:pointer;color:#9fb5b1;font-weight:500;transition:.15s}
+  .nav-item:hover{background:#13302d;color:#fff}
+  .nav-item.active{background:var(--accent);color:#fff}
+  .nav-item .ic{width:18px;text-align:center}
+  .sidebar .foot{margin-top:auto;font-size:11px;color:#577069;padding:12px}
+  .main{display:flex;flex-direction:column;min-width:0}
+  .topbar{background:var(--card);border-bottom:1px solid var(--line);padding:14px 28px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:5}
+  .topbar h1{font-size:18px;font-weight:600}
+  .topbar .sub{color:var(--muted);font-size:12.5px}
+  .spacer{flex:1}
+  .role-switch{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .role-switch select{font-family:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px;color:var(--ink)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700}
+  .content{padding:26px 28px;max-width:1180px}
+  .view{display:none;animation:fade .25s ease}.view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .page-head{margin-bottom:18px}.page-head h2{font-size:20px;font-weight:700}.page-head p{color:var(--muted);margin-top:2px}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .tile .t-ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:18px;margin-bottom:12px}
+  .tile h3{font-size:28px;font-weight:700}.tile span{color:var(--muted);font-size:12.5px}.tile .delta{font-size:12px;font-weight:600;margin-top:6px}
+  .grid{display:grid;gap:16px}.g-2{grid-template-columns:1.6fr 1fr}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card-h{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+  .card-h h4{font-size:15px;font-weight:600}.card-b{padding:6px 0}.card-pad{padding:18px}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:10px 18px;border-bottom:1px solid var(--line)}
+  td{padding:12px 18px;border-bottom:1px solid #eef4f3;font-size:13.5px}
+  tr:last-child td{border-bottom:none}tbody tr:hover{background:#f8fbfa}
+  .u{display:flex;align-items:center;gap:10px}
+  .u .au{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:12px}
+  .u small{color:var(--muted);display:block;font-size:11.5px}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+  .b-ok{background:var(--ok-bg);color:var(--ok)}.b-warn{background:var(--warn-bg);color:var(--warn)}
+  .b-danger{background:var(--danger-bg);color:var(--danger)}.b-mute{background:#eef1f0;color:var(--muted)}
+  .b-info{background:var(--accent-soft);color:var(--accent-dark)}
+  .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+  .btn{font-family:inherit;border:1px solid var(--line);background:#fff;color:var(--ink);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-pri{background:var(--accent);border-color:var(--accent);color:#fff}.btn-pri:hover{background:var(--accent-dark);color:#fff}
+  .btn-sm{padding:5px 11px;font-size:12px}
+  .btn-ok{color:var(--ok);border-color:#bfe6cf}.btn-ok:hover{background:var(--ok-bg)}
+  .meter{height:6px;background:#eaf1f0;border-radius:6px;margin-top:10px;overflow:hidden}.meter i{display:block;height:100%;border-radius:6px;background:var(--accent)}
+  /* pipeline */
+  .pipe{display:flex;gap:0;padding:18px;align-items:center;overflow-x:auto}
+  .step{flex:1;text-align:center;position:relative;min-width:90px}
+  .step .c{width:36px;height:36px;border-radius:50%;margin:0 auto 8px;display:grid;place-items:center;font-weight:700;border:2px solid var(--line);background:#fff;color:var(--muted)}
+  .step.done .c{background:var(--accent);border-color:var(--accent);color:#fff}
+  .step.cur .c{border-color:var(--accent);color:var(--accent)}
+  .step:not(:last-child):after{content:'';position:absolute;top:18px;left:60%;width:80%;height:2px;background:var(--line)}
+  .step.done:not(:last-child):after{background:var(--accent)}
+  .step small{font-size:11.5px;color:var(--muted)}.step.done small,.step.cur small{color:var(--ink);font-weight:600}
+  /* checklist */
+  .chk{padding:6px 18px 18px}
+  .chk .row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #eef4f3}
+  .chk .row:last-child{border:none}
+  .chk .ico{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;flex-shrink:0}
+  .pass{background:var(--ok-bg);color:var(--ok)}.fail{background:var(--danger-bg);color:var(--danger)}
+  .chk .row b{font-size:13.5px}.chk .row small{color:var(--muted);display:block}
+  /* match board */
+  .match{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .mc{border:1px solid var(--line);border-radius:10px;padding:14px}
+  .mc h5{font-size:13.5px;margin-bottom:3px}.mc .co{color:var(--accent-dark);font-size:12.5px;font-weight:600}
+  .mc .meta{color:var(--muted);font-size:12px;margin:8px 0}
+  .field{margin:10px 18px}.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:600}
+  .field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .hint{background:var(--accent-soft);color:var(--accent-dark);padding:10px 14px;border-radius:9px;font-size:12.5px;margin:14px 18px;border:1px solid #bfe6e1}
+  .stars{color:#e6b800;font-size:15px;letter-spacing:1px}
+  .arch{font-size:11.5px;color:var(--muted);border-top:1px dashed var(--line);margin-top:18px;padding-top:12px}
+  @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{display:none}.tiles{grid-template-columns:1fr 1fr}.g-2,.match{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">CO·OP</div>
+      <div><b>Co-op System</b><span>ระบบสหกิจศึกษา</span></div>
+    </div>
+    <div class="nav-label">เมนูหลัก</div>
+    <div class="nav-item active" data-view="dashboard"><span class="ic">▣</span> แดชบอร์ด</div>
+    <div class="nav-item" data-view="register"><span class="ic">✓</span> ลงทะเบียน & คุณสมบัติ</div>
+    <div class="nav-item" data-view="company"><span class="ic">🏢</span> สถานประกอบการ</div>
+    <div class="nav-item" data-view="match"><span class="ic">⇄</span> ตำแหน่ง & จับคู่</div>
+    <div class="nav-item" data-view="visit"><span class="ic">📍</span> การนิเทศงาน</div>
+    <div class="nav-item" data-view="evaluate"><span class="ic">★</span> ประเมินผล & เกรด</div>
+    <div class="foot">Prototype • Modular Monolith<br>schema: <code>coop</code></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div><h1 id="vtitle">แดชบอร์ด</h1><div class="sub" id="vsub">ภาพรวมสหกิจศึกษา ภาคปลาย 2/2569</div></div>
+      <div class="spacer"></div>
+      <div class="role-switch"><span>มุมมอง (OPA):</span>
+        <select id="role" onchange="applyRole()">
+          <option value="coord">เจ้าหน้าที่สหกิจ</option>
+          <option value="advisor">อาจารย์นิเทศ</option>
+          <option value="company">สถานประกอบการ</option>
+        </select>
+      </div>
+      <div class="avatar">สห</div>
+    </header>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section class="view active" id="dashboard">
+        <div class="tiles">
+          <div class="tile"><div class="t-ic" style="background:var(--accent-soft);color:var(--accent)">👥</div><h3>86</h3><span>นักศึกษาสหกิจ</span><div class="delta" style="color:var(--ok)">▲ 12 จากรอบก่อน</div></div>
+          <div class="tile"><div class="t-ic" style="background:#e7eefc;color:#3056d3">🏢</div><h3>42</h3><span>สถานประกอบการรับรอง</span><div class="delta" style="color:var(--muted)">+3 รอพิจารณา</div></div>
+          <div class="tile"><div class="t-ic" style="background:var(--warn-bg);color:var(--warn)">📍</div><h3>9</h3><span>นัดนิเทศสัปดาห์นี้</span><div class="delta" style="color:var(--warn)">2 ออนไลน์</div></div>
+          <div class="tile"><div class="t-ic" style="background:var(--danger-bg);color:var(--danger)">⧖</div><h3>4</h3><span>รออนุมัติคุณสมบัติ</span><div class="delta" style="color:var(--danger)">BPMN pending</div></div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-h"><h4>ภาพรวมขั้นตอนสหกิจ (วงจรนักศึกษา)</h4></div>
+          <div class="pipe">
+            <div class="step done"><div class="c">1</div><small>ลงทะเบียน<br>& คุณสมบัติ</small></div>
+            <div class="step done"><div class="c">2</div><small>จับคู่<br>สถานประกอบการ</small></div>
+            <div class="step done"><div class="c">3</div><small>หนังสือ<br>ส่งตัว</small></div>
+            <div class="step cur"><div class="c">4</div><small>ปฏิบัติงาน<br>& นิเทศ</small></div>
+            <div class="step"><div class="c">5</div><small>ประเมิน<br>& รายงาน</small></div>
+            <div class="step"><div class="c">6</div><small>ตัดเกรด<br>→ ทะเบียน</small></div>
+          </div>
+        </div>
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><h4>นักศึกษากำลังปฏิบัติงาน</h4></div>
+            <div class="card-b">
+              <table>
+                <thead><tr><th>นักศึกษา</th><th>สถานประกอบการ</th><th>อาจารย์นิเทศ</th><th>นิเทศ</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="u"><div class="au">นภ</div><div>นภัส กิจเจริญ<small>6401234</small></div></div></td><td>บ. ทรู ดิจิทัล</td><td>รศ.ดร.ปกรณ์</td><td><span class="badge b-ok">ครั้งที่ 1 ✓</span></td></tr>
+                  <tr><td><div class="u"><div class="au">ภั</div><div>ภัทรพล ศรี<small>6401890</small></div></div></td><td>บ. ปตท.</td><td>ผศ.ดร.วราภรณ์</td><td><span class="badge b-warn">นัด 1 ก.ค.</span></td></tr>
+                  <tr><td><div class="u"><div class="au">ชญ</div><div>ชญานิน ทอง<small>6402011</small></div></div></td><td>SCG Digital</td><td>รศ.ดร.ปกรณ์</td><td><span class="badge b-warn">รอจัดนัด</span></td></tr>
+                  <tr><td><div class="u"><div class="au">ธน</div><div>ธนกร พูล<small>6401555</small></div></div></td><td>การไฟฟ้า (กฟผ.)</td><td>ผศ.ดร.วราภรณ์</td><td><span class="badge b-danger">⚠ มีปัญหา</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h4>การพึ่งพาโมดูลอื่น</h4></div>
+            <div class="card-pad" style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;gap:10px;align-items:flex-start"><span class="badge b-info">academic</span><small>ดึงข้อมูลนักศึกษา หน่วยกิต/GPA → <code>getStudentById()</code></small></div>
+              <div style="display:flex;gap:10px;align-items:flex-start"><span class="badge b-info">hr</span><small>ดึงอาจารย์นิเทศ + ภาระงาน → <code>getFacultyByDepartment()</code></small></div>
+              <div style="display:flex;gap:10px;align-items:flex-start"><span class="badge b-mute">document</span><small>หนังสือส่งตัว → event <code>CoopReferralIssuedEvent</code></small></div>
+              <div style="display:flex;gap:10px;align-items:flex-start"><span class="badge b-mute">planning</span><small>KPI ภาวะการมีงานทำ → <code>CoopCompletedEvent</code></small></div>
+              <div class="hint" style="margin:4px 0 0">โมดูล coop ไม่ query schema อื่นตรง — เรียกผ่าน public API / event เท่านั้น (กฎ M-02, C-02)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REGISTER -->
+      <section class="view" id="register">
+        <div class="page-head"><h2>ลงทะเบียนสหกิจ & ตรวจคุณสมบัติ</h2><p>นักศึกษา: นภัส กิจเจริญ (6401234) · ภาควิชาวิศวกรรมคอมพิวเตอร์</p></div>
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><h4>ผลตรวจคุณสมบัติอัตโนมัติ</h4><div class="spacer"></div><span class="badge b-info">ข้อมูลจาก academic API</span></div>
+            <div class="chk">
+              <div class="row"><div class="ico pass">✓</div><div><b>GPA ≥ 2.50</b><small>ปัจจุบัน 3.12 — ผ่านเกณฑ์</small></div></div>
+              <div class="row"><div class="ico pass">✓</div><div><b>หน่วยกิตสะสม ≥ 99 หน่วยกิต</b><small>ปัจจุบัน 112 หน่วยกิต — ผ่านเกณฑ์</small></div></div>
+              <div class="row"><div class="ico pass">✓</div><div><b>ผ่านวิชาเตรียมสหกิจศึกษา</b><small>เกรด B — ผ่านเกณฑ์</small></div></div>
+              <div class="row"><div class="ico fail">✕</div><div><b>ไม่ติด W ในภาคล่าสุด</b><small>พบรายวิชาถอน 1 วิชา — ต้องยื่นขออนุมัติกรณีพิเศษ</small></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h4>สถานะการลงทะเบียน</h4></div>
+            <div class="card-pad">
+              <span class="badge b-warn" style="font-size:13px"><span class="dot"></span>รออนุมัติกรณีพิเศษ</span>
+              <div class="hint" style="margin:14px 0">คุณสมบัติไม่ครบ 1 ข้อ → เข้าสู่ BPMN <code>coop-registration-approval.bpmn</code><br>Student → เจ้าหน้าที่สหกิจ → กรรมการสหกิจ</div>
+              <div class="pipe" style="padding:6px 0">
+                <div class="step done"><div class="c">1</div><small>ยื่นคำร้อง</small></div>
+                <div class="step cur"><div class="c">2</div><small>เจ้าหน้าที่</small></div>
+                <div class="step"><div class="c">3</div><small>กรรมการ</small></div>
+              </div>
+              <button class="btn btn-pri" style="width:100%;margin-top:14px" onclick="this.outerHTML='<div class=hint style=\'background:var(--ok-bg);color:#176b3d;border-color:#bfe6cf;margin:0\'>✓ ส่งคำร้องเข้ากระบวนการอนุมัติแล้ว → publish <code>CoopRegisteredEvent</code> เมื่ออนุมัติ</div>'">ยื่นคำร้องขออนุมัติ</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- COMPANY -->
+      <section class="view" id="company">
+        <div class="page-head"><h2>สถานประกอบการ</h2><p>ทะเบียนและการรับรอง (MOU) · สถานประกอบการเห็นเฉพาะข้อมูลของตน (OPA)</p></div>
+        <div class="card">
+          <div class="card-h"><h4>รายชื่อสถานประกอบการ</h4><div class="spacer"></div><button class="btn btn-pri btn-sm">+ เพิ่มสถานประกอบการ</button></div>
+          <div class="card-b">
+            <table>
+              <thead><tr><th>สถานประกอบการ</th><th>ประเภท</th><th>MOU</th><th>รับนักศึกษา</th><th>รีวิว</th><th>สถานะ</th></tr></thead>
+              <tbody>
+                <tr><td><div class="u"><div class="au">ทร</div><div>บ. ทรู ดิจิทัล กรุ๊ป<small>เทคโนโลยีสารสนเทศ</small></div></div></td><td>เอกชน</td><td><span class="badge b-ok">ถึง 2571</span></td><td>8 คน</td><td><span class="stars">★★★★☆</span></td><td><span class="badge b-ok"><span class="dot"></span>รับรอง</span></td></tr>
+                <tr><td><div class="u"><div class="au">ปต</div><div>บ. ปตท. จำกัด (มหาชน)<small>พลังงาน</small></div></div></td><td>รัฐวิสาหกิจ</td><td><span class="badge b-ok">ถึง 2570</span></td><td>5 คน</td><td><span class="stars">★★★★★</span></td><td><span class="badge b-ok"><span class="dot"></span>รับรอง</span></td></tr>
+                <tr><td><div class="u"><div class="au">SC</div><div>SCG Digital Office<small>ก่อสร้าง/ดิจิทัล</small></div></div></td><td>เอกชน</td><td><span class="badge b-warn">ใกล้หมดอายุ</span></td><td>6 คน</td><td><span class="stars">★★★★☆</span></td><td><span class="badge b-ok"><span class="dot"></span>รับรอง</span></td></tr>
+                <tr><td><div class="u"><div class="au">นว</div><div>บ. นวัตกรรมไอที<small>ซอฟต์แวร์</small></div></div></td><td>เอกชน</td><td><span class="badge b-mute">—</span></td><td>—</td><td><span class="badge b-mute">ใหม่</span></td><td><span class="badge b-warn"><span class="dot"></span>รอพิจารณา</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="hint">สถานประกอบการรายใหม่ต้องผ่านการพิจารณารับรองจากกรรมการสหกิจก่อน นักศึกษาจึงเลือกได้ · ไฟล์ MOU เก็บใน MinIO + แจ้งเตือนก่อนหมดอายุ</div>
+      </section>
+
+      <!-- MATCH -->
+      <section class="view" id="match">
+        <div class="page-head"><h2>ตำแหน่งงาน & การจับคู่</h2><p>นักศึกษาเลือกได้สูงสุด 3 อันดับ · ระบบช่วยจับคู่ตามสาขา + โควต้า</p></div>
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><h4>ตำแหน่งงานสหกิจที่เปิดรับ</h4></div>
+            <div class="card-pad match">
+              <div class="mc"><h5>Software Engineer (สหกิจ)</h5><div class="co">บ. ทรู ดิจิทัล กรุ๊ป</div><div class="meta">สาขา: วิศวกรรมคอมพิวเตอร์ · กรุงเทพฯ</div><div style="display:flex;justify-content:space-between;align-items:center"><span class="badge b-info">รับ 4 · สมัคร 7</span><button class="btn btn-sm">ดูผู้สมัคร</button></div></div>
+              <div class="mc"><h5>Data Engineer Intern</h5><div class="co">SCG Digital Office</div><div class="meta">สาขา: วิศวกรรมคอมพิวเตอร์ · นนทบุรี</div><div style="display:flex;justify-content:space-between;align-items:center"><span class="badge b-info">รับ 2 · สมัคร 3</span><button class="btn btn-sm">ดูผู้สมัคร</button></div></div>
+              <div class="mc"><h5>ผู้ช่วยวิศวกรระบบ</h5><div class="co">บ. ปตท.</div><div class="meta">สาขา: วิศวกรรมไฟฟ้า · ระยอง</div><div style="display:flex;justify-content:space-between;align-items:center"><span class="badge b-info">รับ 3 · สมัคร 5</span><button class="btn btn-sm">ดูผู้สมัคร</button></div></div>
+              <div class="mc"><h5>QA Automation</h5><div class="co">บ. ทรู ดิจิทัล กรุ๊ป</div><div class="meta">สาขา: วิศวกรรมคอมพิวเตอร์ · กรุงเทพฯ</div><div style="display:flex;justify-content:space-between;align-items:center"><span class="badge b-info">รับ 2 · สมัคร 4</span><button class="btn btn-sm">ดูผู้สมัคร</button></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h4>การจับคู่ของ นภัส กิจเจริญ</h4></div>
+            <div class="card-pad">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div class="mc" style="border-color:var(--accent);background:var(--accent-soft)"><div style="display:flex;justify-content:space-between"><b>อันดับ 1 · Software Engineer</b><span class="badge b-ok">จับคู่แล้ว</span></div><div class="co">บ. ทรู ดิจิทัล กรุ๊ป</div></div>
+                <div class="mc"><div style="display:flex;justify-content:space-between"><b>อันดับ 2 · QA Automation</b><span class="badge b-mute">สำรอง</span></div><div class="co" style="color:var(--muted)">บ. ทรู ดิจิทัล กรุ๊ป</div></div>
+                <div class="mc"><div style="display:flex;justify-content:space-between"><b>อันดับ 3 · Data Engineer</b><span class="badge b-mute">สำรอง</span></div><div class="co" style="color:var(--muted)">SCG Digital Office</div></div>
+              </div>
+              <div class="pipe" style="padding:14px 0 0"><div class="step done"><div class="c">✓</div><small>สมัคร</small></div><div class="step done"><div class="c">✓</div><small>จับคู่</small></div><div class="step cur"><div class="c">3</div><small>ยืนยัน</small></div></div>
+              <button class="btn btn-pri" style="width:100%;margin-top:14px">ยืนยันการจับคู่ → ออกหนังสือส่งตัว</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISIT -->
+      <section class="view" id="visit">
+        <div class="page-head"><h2>การนิเทศงาน</h2><p>อาจารย์เห็นเฉพาะนักศึกษาในความดูแล (OPA row-level filter)</p></div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-h"><h4>ตารางนิเทศ — รศ.ดร.ปกรณ์ วิทยา</h4><div class="spacer"></div><span class="badge b-info">นักศึกษาในความดูแล 3 คน</span></div>
+          <div class="card-b">
+            <table>
+              <thead><tr><th>นักศึกษา</th><th>สถานประกอบการ</th><th>วันนิเทศ</th><th>รูปแบบ</th><th>สถานะ</th></tr></thead>
+              <tbody>
+                <tr><td>นภัส กิจเจริญ</td><td>บ. ทรู ดิจิทัล</td><td>24 มิ.ย. 69</td><td>On-site</td><td><span class="badge b-ok"><span class="dot"></span>นิเทศแล้ว (1/2)</span></td></tr>
+                <tr><td>ชญานิน ทอง</td><td>SCG Digital</td><td>1 ก.ค. 69</td><td>Online</td><td><span class="badge b-warn"><span class="dot"></span>นัดหมายแล้ว</span></td></tr>
+                <tr><td>กฤตยา แสง</td><td>บ. ทรู ดิจิทัล</td><td>—</td><td>—</td><td><span class="badge b-mute"><span class="dot"></span>รอจัดนัด</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h4>บันทึกผลการนิเทศ — นภัส กิจเจริญ (ครั้งที่ 1)</h4></div>
+          <div class="field"><label>ประเด็น/ความก้าวหน้า</label><textarea rows="2" readonly>นักศึกษาได้รับมอบหมายพัฒนาฟีเจอร์ search API ทำงานร่วมกับทีมได้ดี งานตรงสาขา</textarea></div>
+          <div class="field"><label>ข้อเสนอแนะ</label><textarea rows="2" readonly>เพิ่มทักษะการเขียน unit test ให้ครอบคลุมยิ่งขึ้น</textarea></div>
+          <div style="display:flex;gap:10px;margin:0 18px 18px"><span class="badge b-ok">ไม่มีความเสี่ยง</span><button class="btn btn-sm">แนบรูป (MinIO)</button></div>
+        </div>
+      </section>
+
+      <!-- EVALUATE -->
+      <section class="view" id="evaluate">
+        <div class="page-head"><h2>ประเมินผล & ตัดเกรด</h2><p>BPMN: พี่เลี้ยงประเมิน → อาจารย์ประเมิน → เจ้าหน้าที่สรุปเกรด · คะแนนเป็น sensitive (OPA)</p></div>
+        <div class="grid g-2">
+          <div class="card">
+            <div class="card-h"><h4>คะแนนประเมิน — นภัส กิจเจริญ</h4></div>
+            <div class="card-pad">
+              <table>
+                <tbody>
+                  <tr><td>พนักงานพี่เลี้ยง (น้ำหนัก 60%)</td><td style="text-align:right"><b>88</b></td><td style="text-align:right"><span class="badge b-ok">ส่งแล้ว</span></td></tr>
+                  <tr><td>อาจารย์นิเทศ (น้ำหนัก 30%)</td><td style="text-align:right"><b>85</b></td><td style="text-align:right"><span class="badge b-ok">ส่งแล้ว</span></td></tr>
+                  <tr><td>รายงานสหกิจ (น้ำหนัก 10%)</td><td style="text-align:right"><b>90</b></td><td style="text-align:right"><span class="badge b-ok">ตรวจแล้ว</span></td></tr>
+                </tbody>
+              </table>
+              <div class="hint" style="display:flex;justify-content:space-between;align-items:center"><span>คะแนนรวมถ่วงน้ำหนัก</span><b style="font-size:18px">87.4 → เกรด A</b></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><h4>สรุปและส่งเกรด</h4></div>
+            <div class="card-pad">
+              <div class="pipe" style="padding:0 0 12px"><div class="step done"><div class="c">✓</div><small>พี่เลี้ยง</small></div><div class="step done"><div class="c">✓</div><small>อาจารย์</small></div><div class="step cur"><div class="c">3</div><small>สรุป/lock</small></div></div>
+              <div class="field" style="margin-left:0;margin-right:0"><label>เกรดสหกิจ</label><input value="A" readonly></div>
+              <button class="btn btn-pri" style="width:100%;margin-top:6px" id="lockBtn" onclick="lockGrade()">ยืนยันและส่งเกรด (lock)</button>
+              <div class="hint" id="gradeMsg" style="margin:14px 0 0">เมื่อ lock → publish <code>CoopCompletedEvent</code> → academic (transcript) + planning (KPI)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <p class="arch">สถาปัตยกรรม: Modular Monolith · โมดูลใหม่ <b>coop</b> (schema <code>coop</code>) · consumer ของ academic + hr · producer event ให้ document + planning · BPMN external task · OPA row-level filter — อ้างอิง <b>architecture.md</b></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const titles={dashboard:['แดชบอร์ด','ภาพรวมสหกิจศึกษา ภาคปลาย 2/2569'],register:['ลงทะเบียน & คุณสมบัติ','ตรวจสิทธิ์เข้าร่วมสหกิจ'],company:['สถานประกอบการ','ทะเบียนและการรับรอง'],match:['ตำแหน่ง & จับคู่','การสมัครและจับคู่งาน'],visit:['การนิเทศงาน','แผนและบันทึกการนิเทศ'],evaluate:['ประเมินผล & เกรด','สรุปคะแนนและส่งเกรด']};
+  document.querySelectorAll('.nav-item').forEach(n=>n.onclick=()=>{
+    document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));n.classList.add('active');
+    const v=n.dataset.view;document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById(v).classList.add('active');
+    document.getElementById('vtitle').textContent=titles[v][0];document.getElementById('vsub').textContent=titles[v][1];
+  });
+  function lockGrade(){
+    document.getElementById('lockBtn').outerHTML='<div class="badge b-ok" style="width:100%;justify-content:center;padding:9px"><span class="dot"></span>ส่งเกรดแล้ว (locked)</div>';
+    document.getElementById('gradeMsg').innerHTML='✓ publish <code>CoopCompletedEvent</code> เรียบร้อย → academic บันทึกเกรดเข้า transcript, planning อัปเดต KPI ภาวะการมีงานทำ';
+    document.getElementById('gradeMsg').style.cssText='background:var(--ok-bg);color:#176b3d;border-color:#bfe6cf;margin:14px 0 0';
+  }
+  function applyRole(){
+    const r=document.getElementById('role').value;
+    const map={coord:'เจ้าหน้าที่สหกิจ',advisor:'อาจารย์นิเทศ',company:'สถานประกอบการ'};
+    document.querySelector('.avatar').textContent={coord:'สห',advisor:'อจ',company:'บร'}[r];
+    // role-based note
+    let msg;
+    if(r==='advisor')msg='อาจารย์นิเทศเห็นเฉพาะ <b>นักศึกษาในความดูแล 3 คน</b> (OPA row-level filter) — ซ่อนนักศึกษาของอาจารย์ท่านอื่น';
+    else if(r==='company')msg='สถานประกอบการเห็นเฉพาะ <b>ใบสมัคร/นักศึกษาในตำแหน่งของตน</b> — ไม่เห็นคะแนนประเมินของฝ่ายอื่น';
+    else msg='เจ้าหน้าที่สหกิจเห็น <b>ภาพรวมทั้งหมด</b> และสรุป/ตัดเกรดได้';
+    let n=document.getElementById('roleNote');
+    if(!n){n=document.createElement('div');n.id='roleNote';n.className='hint';document.querySelector('#dashboard').prepend(n);}
+    n.innerHTML='👁 มุมมองสิทธิ์ปัจจุบัน — <b>'+map[r]+'</b>: '+msg;
+  }
+</script>
+</body>
+</html>
