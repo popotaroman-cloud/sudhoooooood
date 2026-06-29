@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th" class="">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบนัดตารางสอบโปรเจค — mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="app">
+      <div class="bar">
+        <div class="logo"><i class="ti ti-calendar-event" aria-hidden="true"></i></div>
+        <div style="flex:1">
+          <p class="bar-title">ระบบนัดตารางสอบโปรเจค</p>
+          <p class="bar-sub">คณะวิทยาศาสตร์ · ภาคต้น 2569</p>
+        </div>
+        <button id="theme" class="icon-btn" aria-label="สลับธีมสว่าง/มืด"><i class="ti ti-moon" aria-hidden="true"></i></button>
+        <div class="avatar">PC</div>
+      </div>
+
+      <div class="body">
+        <nav class="side" id="nav">
+          <div class="navi on" data-p="ov"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>ภาพรวม</div>
+          <div class="navi" data-p="req"><i class="ti ti-file-text" aria-hidden="true"></i>คำขอสอบ</div>
+          <div class="navi" data-p="sched"><i class="ti ti-calendar" aria-hidden="true"></i>ตารางสอบ</div>
+          <div class="navi" data-p="appr"><i class="ti ti-checkup-list" aria-hidden="true"></i>อนุมัติ</div>
+          <div class="navi" data-p="res"><i class="ti ti-clipboard-check" aria-hidden="true"></i>ผลสอบ</div>
+          <div class="navi" data-p="infra"><i class="ti ti-server-2" aria-hidden="true"></i>ระบบ</div>
+        </nav>
+
+        <div class="main">
+
+          <section class="pnl on" data-p="ov">
+            <h3>ภาพรวม</h3>
+            <div class="cards">
+              <div class="mc"><p class="l">คำขอรอจัด</p><p class="v">8</p></div>
+              <div class="mc"><p class="l">รอบสอบสัปดาห์นี้</p><p class="v">12</p></div>
+              <div class="mc"><p class="l">รออนุมัติ</p><p class="v">3</p></div>
+              <div class="mc"><p class="l">ผลรอบันทึก</p><p class="v">5</p></div>
+            </div>
+            <div class="row" style="border-color:var(--border-warning)">
+              <i class="ti ti-alert-triangle" style="font-size:20px;color:var(--text-warning)" aria-hidden="true"></i>
+              <div style="flex:1"><p class="r-title">พบการชนกัน 1 รายการ — กรรมการซ้ำเวลา (อ.วิชัย)</p></div>
+              <span class="tag t-warn">ต้องแก้ไข</span>
+            </div>
+            <p class="section-label">รอบสอบวันนี้</p>
+            <div class="row"><span class="tag t-info">09:00</span><div style="flex:1"><p class="r-title">CS-PRJ · ระบบจองห้องอัจฉริยะ</p><p class="r-sub">ห้อง Lab2 · ปธ. อ.นภา</p></div><span class="tag t-ok">พร้อม</span></div>
+            <div class="row"><span class="tag t-info">10:30</span><div style="flex:1"><p class="r-title">CS-PRJ · แอปติดตามสุขภาพ</p><p class="r-sub">ห้อง 314 · ปธ. อ.วิชัย</p></div><span class="tag t-ok">พร้อม</span></div>
+          </section>
+
+          <section class="pnl" data-p="req">
+            <div class="head-row"><h3>คำขอสอบโปรเจค</h3><span class="tag t-info">FR-PES-001</span></div>
+            <p class="desc">ตรวจคุณสมบัติก่อนจัดตาราง — เอกสารครบ + อาจารย์ที่ปรึกษายืนยัน</p>
+            <div class="row"><div style="flex:1"><p class="r-title">ระบบจองห้องอัจฉริยะ</p><p class="r-sub">น.ส.มานี · ที่ปรึกษา อ.นภา</p></div><span class="tag t-ok">ผ่านคุณสมบัติ</span><button class="mini" data-act="จัดตาราง: ระบบจองห้องอัจฉริยะ">จัดตาราง</button></div>
+            <div class="row"><div style="flex:1"><p class="r-title">แอปติดตามสุขภาพ</p><p class="r-sub">นายปกรณ์ · ที่ปรึกษา อ.วิชัย</p></div><span class="tag t-ok">ผ่านคุณสมบัติ</span><button class="mini" data-act="จัดตาราง: แอปติดตามสุขภาพ">จัดตาราง</button></div>
+            <div class="row"><div style="flex:1"><p class="r-title">เกมเพื่อการเรียนรู้</p><p class="r-sub">น.ส.ศิริ · ที่ปรึกษา อ.สมพร</p></div><span class="tag t-warn">รอ advisor ยืนยัน</span></div>
+            <div class="row"><div style="flex:1"><p class="r-title">ระบบวิเคราะห์ข้อมูลจราจร</p><p class="r-sub">นายธีร์ · ที่ปรึกษา อ.นภา</p></div><span class="tag t-dang">เอกสารไม่ครบ</span></div>
+          </section>
+
+          <section class="pnl" data-p="sched">
+            <div class="head-row"><h3>ตารางสอบ</h3><span class="tag t-info">FR-PES-002/003/004/006</span></div>
+            <p class="desc">ตรวจการชนกันของกรรมการ/ห้อง/นักศึกษาอัตโนมัติ</p>
+            <table class="tt">
+              <thead><tr><th style="width:46px">เวลา</th><th>จันทร์</th><th>อังคาร</th><th>พุธ</th><th>พฤหัส</th><th>ศุกร์</th></tr></thead>
+              <tbody>
+                <tr><td>09:00</td><td><span class="chip t-info">CS-PRJ<br>Lab2</span></td><td></td><td><span class="chip t-info">CS-PRJ<br>314</span></td><td></td><td></td></tr>
+                <tr><td>10:30</td><td></td><td><span class="chip t-info">CS-PRJ<br>314</span></td><td></td><td><span class="chip t-dang">ชนกัน<br>อ.วิชัย</span></td><td></td></tr>
+                <tr><td>13:00</td><td><span class="chip t-info">CS-PRJ<br>Lab2</span></td><td></td><td></td><td><span class="chip t-info">CS-PRJ<br>Lab1</span></td><td></td></tr>
+                <tr><td>14:30</td><td></td><td></td><td><span class="chip t-info">CS-PRJ<br>314</span></td><td></td><td><span class="chip t-info">CS-PRJ<br>Lab2</span></td></tr>
+              </tbody>
+            </table>
+            <div class="card">
+              <p class="card-title">รอบสอบ · ระบบจองห้องอัจฉริยะ</p>
+              <div class="chips-line">
+                <span class="tag t-info"><i class="ti ti-clock" aria-hidden="true"></i> จ. 09:00–10:00</span>
+                <span class="tag t-ok"><i class="ti ti-door" aria-hidden="true"></i> Lab2 · จองแล้ว (facility)</span>
+              </div>
+              <p class="r-sub" style="margin:0 0 6px">กรรมการ (ตรวจเวลาว่างจาก hr)</p>
+              <div class="row mini-row"><span class="tag t-ok">ประธาน</span><span style="flex:1;font-size:13px">อ.นภา ส.</span><span class="free">ว่าง</span></div>
+              <div class="row mini-row"><span class="tag t-info">กรรมการ</span><span style="flex:1;font-size:13px">อ.สมพร ก.</span><span class="free">ว่าง</span></div>
+              <div class="row mini-row" style="margin:0"><span class="tag t-info">ที่ปรึกษา</span><span style="flex:1;font-size:13px">อ.นภา ส.</span><span class="free">ว่าง</span></div>
+              <button class="mini" style="margin-top:12px" data-act="เผยแพร่ตาราง + ส่ง iCal"><i class="ti ti-send" aria-hidden="true"></i> เผยแพร่ + ส่ง iCal</button>
+            </div>
+          </section>
+
+          <section class="pnl" data-p="appr">
+            <div class="head-row"><h3>อนุมัติตารางสอบ</h3><span class="tag t-info">FR-PES-005 · BPMN</span></div>
+            <p class="desc">เดินผ่าน process exam-schedule-approval</p>
+            <div class="steps">
+              <div class="step done"><i class="ti ti-check" aria-hidden="true"></i><br>Coordinator</div>
+              <i class="ti ti-chevron-right sep" aria-hidden="true"></i>
+              <div class="step cur"><i class="ti ti-clock" aria-hidden="true"></i><br>หัวหน้าภาควิชา</div>
+              <i class="ti ti-chevron-right sep" aria-hidden="true"></i>
+              <div class="step"><i class="ti ti-dots" aria-hidden="true"></i><br>รองคณบดี</div>
+            </div>
+            <div class="row"><div style="flex:1"><p class="r-title">ตารางสอบสัปดาห์ที่ 1</p><p class="r-sub">8 รอบ · รอหัวหน้าภาควิชา</p></div><span class="tag t-warn">รออนุมัติ</span><button class="mini" data-act="อนุมัติตารางสอบสัปดาห์ที่ 1">อนุมัติ</button></div>
+            <div class="row"><div style="flex:1"><p class="r-title">ตารางสอบกลุ่ม AI</p><p class="r-sub">5 รอบ · อนุมัติครบทุกขั้น</p></div><span class="tag t-ok">อนุมัติแล้ว</span></div>
+          </section>
+
+          <section class="pnl" data-p="res">
+            <div class="head-row"><h3>บันทึกผลสอบ</h3><span class="tag t-info">FR-PES-007</span></div>
+            <p class="desc">เฉพาะกรรมการของรอบนั้นบันทึกได้ (บังคับด้วย OPA) · ล็อกหลังยืนยัน</p>
+            <div class="row"><div style="flex:1"><p class="r-title">ระบบจองห้องอัจฉริยะ — มานี</p><p class="r-sub">รอบ จ. 09:00 · กรรมการ 3 คน</p></div><button class="mini" data-act="บันทึกผลสอบ: ระบบจองห้องอัจฉริยะ">บันทึกผล</button></div>
+            <div class="row"><div style="flex:1"><p class="r-title">แอปติดตามสุขภาพ — ปกรณ์</p><p class="r-sub">คะแนน 86 · ผ่าน</p></div><span class="tag t-ok">ผ่าน · ล็อกแล้ว</span></div>
+            <div class="row"><div style="flex:1"><p class="r-title">เกมเพื่อการเรียนรู้ — ศิริ</p><p class="r-sub">ผ่านแบบมีแก้ไข · ส่งแก้ใน 14 วัน</p></div><span class="tag t-warn">แก้ไข · ล็อกแล้ว</span></div>
+          </section>
+
+          <section class="pnl" data-p="infra">
+            <div class="head-row"><h3>สถานะระบบ</h3><span class="tag t-info">FR-INF</span></div>
+            <p class="desc">แพลตฟอร์มที่รองรับระบบนัดตารางสอบ</p>
+            <div class="svc-grid">
+              <div class="row svc"><span class="dot ok"></span><span>traefik</span></div>
+              <div class="row svc"><span class="dot ok"></span><span>keycloak</span></div>
+              <div class="row svc"><span class="dot ok"></span><span>opa</span></div>
+              <div class="row svc"><span class="dot warn"></span><span>bpmn-engine</span></div>
+              <div class="row svc"><span class="dot ok"></span><span>postgres</span></div>
+              <div class="row svc"><span class="dot ok"></span><span>rabbitmq</span></div>
+              <div class="row svc"><span class="dot ok"></span><span>redis</span></div>
+              <div class="row svc"><span class="dot ok"></span><span>minio</span></div>
+            </div>
+            <p class="section-label">CI/CD pipeline</p>
+            <div class="steps">
+              <div class="step"><i class="ti ti-check ok-i" aria-hidden="true"></i><br>lint</div>
+              <i class="ti ti-chevron-right sep" aria-hidden="true"></i>
+              <div class="step"><i class="ti ti-check ok-i" aria-hidden="true"></i><br>test</div>
+              <i class="ti ti-chevron-right sep" aria-hidden="true"></i>
+              <div class="step"><i class="ti ti-check ok-i" aria-hidden="true"></i><br>build</div>
+              <i class="ti ti-chevron-right sep" aria-hidden="true"></i>
+              <div class="step"><i class="ti ti-check ok-i" aria-hidden="true"></i><br>push</div>
+            </div>
+            <div class="row" style="margin:0"><i class="ti ti-shield-check" style="font-size:18px;color:var(--text-success)" aria-hidden="true"></i><span style="flex:1;font-size:13px">ArchUnit / Deptrac — ไม่พบการละเมิด boundary</span><span class="tag t-ok">ผ่าน</span></div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+    <p class="foot">Prototype mockup · ข้อมูลเป็นตัวอย่าง ไม่ได้เชื่อม backend จริง · อิงจาก 1/fr-infra-exam-scheduling.md</p>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

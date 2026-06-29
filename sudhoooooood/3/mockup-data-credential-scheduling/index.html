@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="th" class="">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data services · Credential · Classroom scheduling — mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="app">
+      <div class="bar">
+        <div class="logo"><i class="ti ti-database-cog" aria-hidden="true"></i></div>
+        <div style="flex:1">
+          <p class="bar-title">Data services · Credential · Classroom scheduling</p>
+          <p class="bar-sub">คณะวิทยาศาสตร์ · งานโฟลเดอร์ 3</p>
+        </div>
+        <button id="theme" class="icon-btn" aria-label="สลับธีมสว่าง/มืด"><i class="ti ti-moon" aria-hidden="true"></i></button>
+        <div class="avatar">DS</div>
+      </div>
+
+      <div class="body">
+        <nav class="side" id="nav">
+          <div class="navi on" data-p="ov"><i class="ti ti-layout-dashboard" aria-hidden="true"></i>ภาพรวม</div>
+          <p class="nav-group">Data services</p>
+          <div class="navi" data-p="catalog"><i class="ti ti-list-search" aria-hidden="true"></i>ทะเบียนข้อมูล</div>
+          <div class="navi" data-p="query"><i class="ti ti-table" aria-hidden="true"></i>ข้อมูลรวม &amp; query</div>
+          <p class="nav-group">Credential</p>
+          <div class="navi" data-p="issue"><i class="ti ti-certificate" aria-hidden="true"></i>ออก credential</div>
+          <div class="navi" data-p="verify"><i class="ti ti-shield-check" aria-hidden="true"></i>ตรวจสอบ</div>
+          <p class="nav-group">Classroom scheduling</p>
+          <div class="navi" data-p="timetable"><i class="ti ti-calendar" aria-hidden="true"></i>ตารางเรียน</div>
+          <div class="navi" data-p="auto"><i class="ti ti-wand" aria-hidden="true"></i>จัดอัตโนมัติ &amp; สอบ</div>
+        </nav>
+
+        <div class="main">
+
+          <section class="pnl on" data-p="ov">
+            <h3>ภาพรวม</h3>
+            <div class="cards">
+              <div class="mc"><p class="l">dataset ลงทะเบียน</p><p class="v">24</p></div>
+              <div class="mc"><p class="l">credential ออกวันนี้</p><p class="v">37</p></div>
+              <div class="mc"><p class="l">section จัดแล้ว</p><p class="v">58</p></div>
+              <div class="mc"><p class="l">การชนกัน</p><p class="v">2</p></div>
+            </div>
+            <div class="row" style="border-color:var(--border-warning)">
+              <i class="ti ti-alert-triangle" style="font-size:20px;color:var(--text-warning)" aria-hidden="true"></i>
+              <div style="flex:1"><p class="r-title">ตารางเรียนชนกัน 2 รายการ — ห้อง Lab2 และอาจารย์ซ้ำเวลา</p></div>
+              <span class="tag t-warn">ต้องแก้ไข</span>
+            </div>
+            <p class="section-label">กิจกรรมล่าสุด</p>
+            <div class="row"><i class="ti ti-certificate" style="font-size:18px;color:var(--text-secondary)" aria-hidden="true"></i><div style="flex:1"><p class="r-title">ออกใบรับรองการเป็นนักศึกษา · CERT-2569-0142</p><p class="r-sub">ลงนามดิจิทัล · 10:24</p></div><span class="tag t-ok">สำเร็จ</span></div>
+            <div class="row"><i class="ti ti-refresh" style="font-size:18px;color:var(--text-secondary)" aria-hidden="true"></i><div style="flex:1"><p class="r-title">read model "enrollment-stats" อัปเดต</p><p class="r-sub">จาก EnrollmentConfirmedEvent · 10:18</p></div><span class="tag t-info">ingest</span></div>
+            <div class="row"><i class="ti ti-calendar-plus" style="font-size:18px;color:var(--text-secondary)" aria-hidden="true"></i><div style="flex:1"><p class="r-title">เผยแพร่ตารางเรียนภาคต้น</p><p class="r-sub">TimetablePublishedEvent · 09:50</p></div><span class="tag t-ok">เผยแพร่</span></div>
+          </section>
+
+          <section class="pnl" data-p="catalog">
+            <div class="head-row"><h3>ทะเบียนข้อมูล (Data product catalog)</h3><span class="tag t-info">FR-DSC-001</span></div>
+            <p class="desc">ค้นหา data product ข้ามหน่วยงาน — ลดการเก็บข้อมูลซ้ำ (data silo)</p>
+            <div class="search">
+              <i class="ti ti-search" aria-hidden="true"></i>
+              <input id="catsearch" type="text" placeholder="ค้นหา dataset…" />
+            </div>
+            <div id="catlist">
+              <div class="row cat-row"><div style="flex:1"><p class="r-title">staff-directory</p><p class="r-sub mono">owner: hr · near-real-time</p></div><span class="tag t-info">internal</span></div>
+              <div class="row cat-row"><div style="flex:1"><p class="r-title">payroll-summary</p><p class="r-sub mono">owner: finance · daily</p></div><span class="tag t-dang">sensitive</span></div>
+              <div class="row cat-row"><div style="flex:1"><p class="r-title">enrollment-stats</p><p class="r-sub mono">owner: academic · per-term</p></div><span class="tag t-info">internal</span></div>
+              <div class="row cat-row"><div style="flex:1"><p class="r-title">budget-balance</p><p class="r-sub mono">owner: finance · near-real-time</p></div><span class="tag t-info">internal</span></div>
+              <div class="row cat-row"><div style="flex:1"><p class="r-title">grades</p><p class="r-sub mono">owner: academic · per-term</p></div><span class="tag t-dang">sensitive</span></div>
+              <div class="row cat-row"><div style="flex:1"><p class="r-title">research-output</p><p class="r-sub mono">owner: research · weekly</p></div><span class="tag t-ok">public</span></div>
+            </div>
+          </section>
+
+          <section class="pnl" data-p="query">
+            <div class="head-row"><h3>ข้อมูลรวม &amp; query</h3><span class="tag t-info">FR-DSC-002/003/004/006</span></div>
+            <p class="desc">อ่านจาก read model ที่สร้างจาก event — ไม่ query ข้าม schema (กฎ M-02)</p>
+            <div class="query-bar">
+              <select id="qdataset">
+                <option value="staff">staff-directory</option>
+                <option value="enroll">enrollment-stats</option>
+                <option value="budget">budget-balance</option>
+              </select>
+              <label class="chk"><input type="checkbox" id="qsens" /> บทบาทมีสิทธิ์เห็นข้อมูลอ่อนไหว</label>
+            </div>
+            <div class="dtbl-wrap"><table class="dtbl"><thead id="qhead"></thead><tbody id="qbody"></tbody></table></div>
+            <p class="lineage mono" id="qlineage"></p>
+          </section>
+
+          <section class="pnl" data-p="issue">
+            <div class="head-row"><h3>ออก credential</h3><span class="tag t-info">FR-CRED-001/002/003/004/006</span></div>
+            <p class="desc">บัญชีเริ่มต้น · บัตรดิจิทัล · ใบรับรองลงนามดิจิทัล (เอกสารทางการผ่าน BPMN)</p>
+            <div class="btn-line">
+              <button class="mini" data-act="ออกใบรับรองใหม่"><i class="ti ti-plus" aria-hidden="true"></i> ออกใบรับรอง</button>
+              <button class="mini" data-act="ออกบัตรประจำตัวดิจิทัล"><i class="ti ti-id" aria-hidden="true"></i> ออกบัตรดิจิทัล</button>
+              <button class="mini" data-act="จัดการ template เอกสาร"><i class="ti ti-template" aria-hidden="true"></i> template</button>
+            </div>
+            <div class="row"><i class="ti ti-key" style="font-size:18px;color:var(--text-secondary)" aria-hidden="true"></i><div style="flex:1"><p class="r-title">บัญชีเริ่มต้น · somchai.j</p><p class="r-sub mono">จาก StaffOnboardedEvent · activation link ส่งแล้ว</p></div><span class="tag t-ok">active</span></div>
+            <div class="row"><i class="ti ti-id" style="font-size:18px;color:var(--text-secondary)" aria-hidden="true"></i><div style="flex:1"><p class="r-title">บัตรนักศึกษาดิจิทัล · มานี (QR)</p><p class="r-sub mono">CARD-2569-3310</p></div><span class="tag t-ok">active</span></div>
+            <div class="row"><i class="ti ti-certificate" style="font-size:18px;color:var(--text-secondary)" aria-hidden="true"></i><div style="flex:1"><p class="r-title">หนังสือรับรองการเป็นนักศึกษา · ปกรณ์</p><p class="r-sub mono">รออนุมัติก่อนออก</p></div><span class="tag t-warn">BPMN รออนุมัติ</span><button class="mini" data-act="ติดตามสถานะอนุมัติเอกสาร">ติดตาม</button></div>
+            <div class="row"><i class="ti ti-certificate" style="font-size:18px;color:var(--text-secondary)" aria-hidden="true"></i><div style="flex:1"><p class="r-title">ใบรับรองการอบรม · ศิริ</p><p class="r-sub mono">CERT-2569-0142 · ลงนามดิจิทัล</p></div><span class="tag t-ok">ออกแล้ว</span><button class="mini" data-act="เพิกถอนใบรับรอง CERT-2569-0142">เพิกถอน</button></div>
+            <div class="row"><i class="ti ti-ban" style="font-size:18px;color:var(--text-secondary)" aria-hidden="true"></i><div style="flex:1"><p class="r-title">บัญชี · kitti.r</p><p class="r-sub mono">จาก StaffOffboardedEvent</p></div><span class="tag t-dang">revoked</span></div>
+          </section>
+
+          <section class="pnl" data-p="verify">
+            <div class="head-row"><h3>ตรวจสอบ credential</h3><span class="tag t-info">FR-CRED-005/007</span></div>
+            <p class="desc">ตรวจจาก QR หรือเลขที่เอกสาร — เปิดเผยเฉพาะข้อมูลที่จำเป็น (PDPA)</p>
+            <div class="query-bar">
+              <input id="vcode" type="text" placeholder="เช่น CERT-2569-0142" style="flex:1" />
+              <button class="mini" id="vbtn"><i class="ti ti-search" aria-hidden="true"></i> ตรวจสอบ</button>
+            </div>
+            <div id="vresult"></div>
+            <p class="section-label">Audit การออก/ตรวจสอบ</p>
+            <div class="row"><span class="tag t-ok">issued</span><div style="flex:1"><p class="r-title">CERT-2569-0142 · ใบรับรองอบรม</p><p class="r-sub mono">10:24 · โดย credential-admin</p></div></div>
+            <div class="row"><span class="tag t-info">verified</span><div style="flex:1"><p class="r-title">CARD-2569-3310 · บัตรนักศึกษา</p><p class="r-sub mono">10:31 · external verifier</p></div></div>
+            <div class="row"><span class="tag t-dang">revoked</span><div style="flex:1"><p class="r-title">CERT-2568-0099 · หมดอายุ</p><p class="r-sub mono">09:00 · ระบบ</p></div></div>
+          </section>
+
+          <section class="pnl" data-p="timetable">
+            <div class="head-row"><h3>ตารางเรียน</h3><span class="tag t-info">FR-CLS-001/002/003/004</span></div>
+            <p class="desc">ตรวจการชนกันของห้อง/อาจารย์/กลุ่มเรียน · ห้องดึงจาก facility อาจารย์จาก hr</p>
+            <table class="tt">
+              <thead><tr><th style="width:46px">เวลา</th><th>จันทร์</th><th>อังคาร</th><th>พุธ</th><th>พฤหัส</th><th>ศุกร์</th></tr></thead>
+              <tbody>
+                <tr><td>09:00</td><td><span class="chip t-info">CS101<br>Lab2</span></td><td></td><td><span class="chip t-info">MA102<br>314</span></td><td></td><td><span class="chip t-info">CS210<br>Lab1</span></td></tr>
+                <tr><td>10:30</td><td></td><td><span class="chip t-dang">ชนกัน<br>Lab2</span></td><td></td><td><span class="chip t-info">CS101<br>314</span></td><td></td></tr>
+                <tr><td>13:00</td><td><span class="chip t-info">ST201<br>Lab1</span></td><td></td><td><span class="chip t-info">CS210<br>314</span></td><td></td><td></td></tr>
+                <tr><td>14:30</td><td></td><td><span class="chip t-info">MA102<br>Lab2</span></td><td></td><td><span class="chip t-info">CS101<br>Lab1</span></td><td></td></tr>
+              </tbody>
+            </table>
+            <div class="card">
+              <p class="card-title">ตอนเรียน · CS101 ตอน 2</p>
+              <div class="chips-line">
+                <span class="tag t-ok"><i class="ti ti-door" aria-hidden="true"></i> Lab2 · ว่าง (facility)</span>
+                <span class="tag t-ok"><i class="ti ti-user-check" aria-hidden="true"></i> อ.นภา · ว่าง (hr)</span>
+                <span class="tag t-info"><i class="ti ti-users" aria-hidden="true"></i> ความจุ 40 / 40</span>
+              </div>
+              <p class="r-sub" style="margin:0 0 6px">ห้องที่ sync จาก facility</p>
+              <div class="row mini-row"><span style="flex:1;font-size:13px">Lab1</span><span class="r-sub mono">lab · 30 ที่</span></div>
+              <div class="row mini-row"><span style="flex:1;font-size:13px">Lab2</span><span class="r-sub mono">lab · 40 ที่</span></div>
+              <div class="row mini-row" style="margin:0"><span style="flex:1;font-size:13px">314</span><span class="r-sub mono">lecture · 60 ที่</span></div>
+            </div>
+          </section>
+
+          <section class="pnl" data-p="auto">
+            <div class="head-row"><h3>จัดอัตโนมัติ &amp; ตารางสอบ</h3><span class="tag t-info">FR-CLS-005/006/007</span></div>
+            <p class="desc">ระบบเสนอ slot ที่ไม่ชนกัน · admin ยืนยันก่อนเผยแพร่</p>
+            <p class="section-label">ข้อเสนอจากระบบ (auto-schedule)</p>
+            <div class="row"><div style="flex:1"><p class="r-title">CS305 ตอน 1 → พุธ 09:00 · ห้อง 314</p><p class="r-sub">ความจุพอ · ไม่ชนอาจารย์/กลุ่ม</p></div><button class="mini" data-act="ยืนยันตาราง CS305 ตอน 1">ยืนยัน</button></div>
+            <div class="row"><div style="flex:1"><p class="r-title">ST201 ตอน 2 → ศุกร์ 13:00 · ห้อง Lab1</p><p class="r-sub">ลดช่องว่างตาราง</p></div><button class="mini" data-act="ยืนยันตาราง ST201 ตอน 2">ยืนยัน</button></div>
+            <p class="section-label">ตารางสอบ</p>
+            <div class="row"><span class="tag t-info">กลางภาค</span><div style="flex:1"><p class="r-title">CS101 · จ. 09:00 · ห้องสอบ A</p><p class="r-sub">ผู้คุมสอบ 2 คน · ความจุ 120</p></div><span class="tag t-ok">ไม่ชนคาบเรียน</span></div>
+            <div class="row"><span class="tag t-info">ปลายภาค</span><div style="flex:1"><p class="r-title">MA102 · พฤ. 13:00 · ห้องสอบ B</p><p class="r-sub">ผู้คุมสอบ 2 คน · ความจุ 90</p></div><span class="tag t-ok">ไม่ชนคาบเรียน</span></div>
+            <button class="mini" style="margin-top:12px" data-act="เผยแพร่ตาราง + ส่ง iCal"><i class="ti ti-send" aria-hidden="true"></i> เผยแพร่ + ส่ง iCal</button>
+          </section>
+
+        </div>
+      </div>
+    </div>
+    <p class="foot">Prototype mockup · ข้อมูลเป็นตัวอย่าง ไม่ได้เชื่อม backend จริง · อิงจาก 3/fr-data-credential-scheduling.md</p>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>
